@@ -1,0 +1,18 @@
+// swift-tools-version: 6.2
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+	name: "BevyRemoteProtocol",
+	platforms: [
+		.macOS(.v12),
+	],
+	products: [
+		.library(name: "BevyRemoteProtocol", targets: ["BevyRemoteProtocol"]),
+	],
+	targets: [
+		.target(name: "OpenRPC"),
+		.target(name: "BevyRemoteProtocol", dependencies: ["OpenRPC"]),
+	]
+)
