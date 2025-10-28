@@ -13,6 +13,7 @@
 /* Begin PBXFileReference section */
 		7338DABC2EB109B00038D094 /* BevyInspector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BevyInspector.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7338DACC2EB10A3C0038D094 /* BevyRemoteProtocol */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BevyRemoteProtocol; sourceTree = "<group>"; };
+		7338DBF32EB173E40038D094 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -51,6 +52,7 @@
 		7338DAB32EB109B00038D094 = {
 			isa = PBXGroup;
 			children = (
+				7338DBF32EB173E40038D094 /* README.md */,
 				7338DACC2EB10A3C0038D094 /* BevyRemoteProtocol */,
 				7338DABE2EB109B00038D094 /* BevyInspector */,
 				7338DABD2EB109B00038D094 /* Products */,
