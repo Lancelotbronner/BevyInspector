@@ -7,15 +7,24 @@
 
 import OpenRPC
 
-public struct Query: Codable, Equatable, LosslessStringConvertible, Sendable {
+public struct Query: Codable, Hashable, LosslessStringConvertible, Sendable {
 	public init() {}
 
 	public var data = QueryData()
 	public var filter = QueryFilter()
 	/// A flag to enable strict mode which will fail if any one of the components is not present or can not be reflected. Defaults to false.
 	public var strict = false
+}
 
-	public func encode(to encoder: any Encoder) throws {
+public extension Query {
+	init(from decoder: any Decoder) throws {
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		data = try container.decodeIfPresent(QueryData.self, forKey: .data) ?? QueryData()
+		filter = try container.decodeIfPresent(QueryFilter.self, forKey: .filter) ?? QueryFilter()
+		strict = try container.decodeIfPresent(Bool.self, forKey: .strict) ?? false
+	}
+
+	func encode(to encoder: any Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 		try container.encode(data, forKey: .data)
 		if filter != QueryFilter() {
@@ -23,9 +32,13 @@ public struct Query: Codable, Equatable, LosslessStringConvertible, Sendable {
 		}
 		try container.encode(strict, forKey: .strict)
 	}
+
+	private enum CodingKeys: CodingKey {
+		case data, filter, strict
+	}
 }
 
-public struct QueryData: Codable, Equatable, LosslessStringConvertible, Sendable {
+public struct QueryData: Codable, Hashable, LosslessStringConvertible, Sendable {
 	public init() {}
 
 	/// An array of fully-qualified type names of components to fetch, see below example for a query to list all the type names in your project.
@@ -36,8 +49,18 @@ public struct QueryData: Codable, Equatable, LosslessStringConvertible, Sendable
 	public var all = false
 	/// An array of fully-qualified type names of components whose presence will be reported as boolean values.
 	public var has: [String] = []
+}
 
-	public func encode(to encoder: any Encoder) throws {
+public extension QueryData {
+	init(from decoder: any Decoder) throws {
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		components = try container.decodeIfPresent([String].self, forKey: .components) ?? []
+		option = try container.decodeIfPresent([String].self, forKey: .option) ?? []
+		all = try container.decodeIfPresent(Bool.self, forKey: .all) ?? false
+		has = try container.decodeIfPresent([String].self, forKey: .has) ?? []
+	}
+
+	func encode(to encoder: any Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 		if !components.isEmpty {
 			try container.encode(components, forKey: .components)
@@ -51,17 +74,29 @@ public struct QueryData: Codable, Equatable, LosslessStringConvertible, Sendable
 			try container.encode(has, forKey: .has)
 		}
 	}
+
+	private enum CodingKeys: CodingKey {
+		case components, option, all, has
+	}
 }
 
-public struct QueryFilter: Codable, Equatable, LosslessStringConvertible, Sendable {
+public struct QueryFilter: Codable, Hashable, LosslessStringConvertible, Sendable {
 	public init() {}
 
 	/// An array of fully-qualified type names of components that must be present on entities in order for them to be included in results.
 	public var with: [String] = []
 	/// An array of fully-qualified type names of components that must not be present on entities in order for them to be included in results.
 	public var without: [String] = []
+}
 
-	public func encode(to encoder: any Encoder) throws {
+public extension QueryFilter {
+	init(from decoder: any Decoder) throws {
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		with = try container.decodeIfPresent([String].self, forKey: .with) ?? []
+		without = try container.decodeIfPresent([String].self, forKey: .without) ?? []
+	}
+
+	func encode(to encoder: any Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 		if !with.isEmpty {
 			try container.encode(with, forKey: .with)
@@ -70,34 +105,32 @@ public struct QueryFilter: Codable, Equatable, LosslessStringConvertible, Sendab
 			try container.encode(without, forKey: .without)
 		}
 	}
+
+	private enum CodingKeys: CodingKey {
+		case with, without
+	}
 }
 
 public struct QueryResult: Codable, Sendable {
 	public var rows: [QueryRow] = []
-	public var columns: [QueryColumn] = []
 
 	public init() {}
+}
 
-	private func _columns() -> [QueryColumn] {
+public extension QueryResult {
+	func columns(excluding: Set<String>) -> [QueryColumn] {
 		var columns = Set<String>()
 		columns.reserveCapacity(max(8, rows.count * 2))
 		for row in rows {
 			row._register(columns: &columns)
 		}
-		return columns.map(QueryColumn.init)
-	}
-}
-
-public extension QueryResult {
-	@inlinable subscript(entity: Entity) -> QueryRow {
-		rows.first { $0.entity == entity } ?? QueryRow(entity: entity)
+		columns.subtract(excluding)
+		return columns.lazy.map(QueryColumn.init).sorted()
 	}
 
 	init(from decoder: any Decoder) throws {
 		let container = try decoder.singleValueContainer()
 		rows = try container.decode([QueryRow].self)
-		columns = _columns()
-		columns.sort()
 	}
 }
 
@@ -110,6 +143,10 @@ public struct QueryRow: Codable, Identifiable, Sendable {
 	/// If has was empty or omitted, this key will be omitted in the response.
 	public var has: [String: Bool] = [:]
 
+	public init(_ entity: Entity) {
+		self.entity = entity
+	}
+
 	@usableFromInline init(entity: Entity) {
 		self.entity = entity
 	}
@@ -121,15 +158,15 @@ public struct QueryRow: Codable, Identifiable, Sendable {
 }
 
 public extension QueryRow {
-	@inlinable subscript(column: String) -> JSON? {
+	@inlinable func value(of column: QueryColumn) -> JSON? {
+		components[column.description]
+	}
+
+	@inlinable func value(of column: String) -> JSON? {
 		components[column]
 	}
 
-	@inlinable subscript(column: QueryColumn) -> JSON? {
-		components[column.id]
-	}
-
-	@inlinable var columns: [QueryColumn] {
+	@inlinable func columns() -> [QueryColumn] {
 		components.keys.lazy.map(QueryColumn.init).sorted()
 	}
 
@@ -143,14 +180,16 @@ public extension QueryRow {
 	}
 }
 
-public struct QueryColumn: Identifiable, Hashable, Comparable, Codable, Sendable {
-	public let id: String
+public struct QueryColumn: Identifiable, Hashable, Comparable, LosslessStringConvertible, Codable, Sendable {
+	public let description: String
 
-	@inlinable public init(_ id: String) {
-		self.id = id
+	public var id: Self { self }
+
+	@inlinable public init(_ description: String) {
+		self.description = description
 	}
 
 	@inlinable public static func < (lhs: QueryColumn, rhs: QueryColumn) -> Bool {
-		lhs.id < rhs.id
+		lhs.description < rhs.description
 	}
 }

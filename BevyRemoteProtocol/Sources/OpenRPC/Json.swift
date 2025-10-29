@@ -96,6 +96,24 @@ public extension JSON {
 			return value
 		}
 	}
+
+	var asInt: Int {
+		get throws {
+			guard case let .integer(value) = self else {
+				throw DecodingError.typeMismatch(Int.self, .init(codingPath: [], debugDescription: ""))
+			}
+			return value
+		}
+	}
+
+	var asArray: [JSON] {
+		get throws {
+			guard case let .array(value) = self else {
+				throw DecodingError.typeMismatch([JSON].self, .init(codingPath: [], debugDescription: ""))
+			}
+			return value
+		}
+	}
 }
 
 public extension Encodable {

@@ -63,3 +63,15 @@ import Foundation
 	var type: BevyType
 	var required: Bool
 }
+
+@Model final class BevyUse {
+	init(replace pattern: String, with replacement: String) {
+		self.pattern = pattern
+		self.replacement = replacement
+	}
+
+	#Unique<BevyUse>([\.pattern])
+
+	var pattern: String
+	var replacement: String
+}

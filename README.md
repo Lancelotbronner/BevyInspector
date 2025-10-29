@@ -21,8 +21,12 @@ There's a schema tab that lets you look at all the types registered by `bevy`.
 
 This is currently useful to find the full name of a type (such as `bevy_ecs::name::Name`) to use in the Query Tab.
 
-### Query Tab
+The schema is saved to the project.
 
-Write your query and view the resulting entities in a table, selecting an entity reveals an inspector that makes it easier to see its component values.
+### World Tab
+
+Write queries and view the resulting hierarchy in a table.
+Select an entity to reveal a component inspector.
+Save your queries to the project, allowing quick access to what you care about.
 
 Currently the query format is either `*` or a comma-separated list of full component name.

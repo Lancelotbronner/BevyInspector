@@ -6,17 +6,18 @@
 //
 
 import SwiftUI
+import BevyRemoteProtocol
 
 @Observable final class Navigation {
 	var tab = NavigationTab.world
 	var detail: NavigationDetail?
 	var schema: BevyType?
-	var query = NavigationQuery.none
+	var query = SavedQuery()
 	var path: [NavigationDetail] = []
 }
 
 enum NavigationTab: Hashable {
-	case world, query, schema, methods
+	case world, schema, methods
 }
 
 enum NavigationQuery: Hashable {

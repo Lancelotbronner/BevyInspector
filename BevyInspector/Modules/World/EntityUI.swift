@@ -11,22 +11,24 @@ import BevyRemoteProtocol
 import OpenRPC
 
 struct EntityForm: View {
-	let row: QueryRow
+	let model: EntityModel
 
 	var body: some View {
 		Form {
 			Section("Entity") {
-				LabeledContent("ID", value: row.entity.id.rawValue, format: .number.grouping(.never))
-				LabeledContent("Name", value: row.name ?? "")
+				LabeledContent("ID", value: model.id.rawValue, format: .number.grouping(.never))
+				LabeledContent("Name", value: model.row.Name ?? "")
 			}
-			ForEach(row.columns) { column in
-				Section {
-					Text(row[column]!.description)
-						.foregroundStyle(.secondary)
-						.font(.caption)
-				} header: {
-					Text(column.id)
-						.foregroundStyle(.primary)
+			ForEach(model.query.columns) { column in
+				if let data = model.row.value(of: column) {
+					Section {
+						Text(data.description)
+							.foregroundStyle(.secondary)
+							.font(.caption)
+					} header: {
+						Text(column.description)
+							.foregroundStyle(.primary)
+					}
 				}
 			}
 		}

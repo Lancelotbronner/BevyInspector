@@ -15,22 +15,19 @@ struct NavigationView: View {
 		NavigationSplitView {
 			List(selection: $navigation.tab) {
 				NavigationLink("World", value: NavigationTab.world)
-				NavigationLink("Query", value: NavigationTab.query)
 				NavigationLink("Schema", value: NavigationTab.schema)
 				NavigationLink("Methods", value: NavigationTab.methods)
 			}
 		} content: {
 			switch navigation.tab {
-			case .world: Spacer()
-			case .query: QueryList()
+			case .world: WorldList()
 			case .schema: SchemaList()
 			case .methods: Spacer()
 			}
 		} detail: {
 			NavigationStack(path: $navigation.path) {
 				switch navigation.tab {
-				case .world: Spacer()
-				case .query: QueryDetail()
+				case .world: WorldDetail(view: navigation.query)
 				case .schema: SchemaDetail()
 				case .methods: Spacer()
 				}

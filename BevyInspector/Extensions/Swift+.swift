@@ -16,3 +16,9 @@ nonisolated extension Collection {
 		count == 1 ? first : nil
 	}
 }
+
+nonisolated extension Array {
+	var nilIfEmpty: Self? {
+		isEmpty ? nil : self
+	}
+}

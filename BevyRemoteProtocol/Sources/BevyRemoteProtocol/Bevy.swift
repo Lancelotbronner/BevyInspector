@@ -25,11 +25,23 @@ public struct Entity: Identifiable, RawRepresentable, Hashable, Codable, Sendabl
 }
 
 public extension QueryColumn {
-	static let name = QueryColumn("bevy_ecs::name::Name")
+	static let Name = QueryColumn("bevy_ecs::name::Name")
+	static let ChildOf = QueryColumn("bevy_ecs::hierarchy::ChildOf")
+	static let Children = QueryColumn("bevy_ecs::hierarchy::Children")
 }
 
 public extension QueryRow {
-	var name: String? {
-		try? self[.name]?.asString
+	var Name: String? {
+		try? self.value(of: .Name)?.asString
+	}
+
+	var ChildOf: Entity? {
+		(try? self.value(of: .ChildOf)?.asInt).map(Entity.init)
+	}
+
+	var Children: [Entity]? {
+		(try? self.value(of: .Children)?.asArray ?? [])?
+			.compactMap { try? $0.asInt }
+			.map(Entity.init)
 	}
 }
