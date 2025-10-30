@@ -12,7 +12,7 @@ public struct RpcService: Sendable {
 }
 
 public extension RpcService {
-	func discover() async throws -> OpenRpcDocument {
+	func discover() async throws -> Specification {
 		try await client.invoke(method: "rpc.discover", with: Empty())
 	}
 }

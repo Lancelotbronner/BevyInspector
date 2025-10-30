@@ -21,7 +21,9 @@ import Foundation
 @Model final class SavedQuery {
 	public init() {}
 
-	private var _name: String?
+	#Index<SavedQuery>([\._name])
+
+	var _name: String?
 	private(set) var rust = ""
 	private var _query: Data?
 

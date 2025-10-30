@@ -1,5 +1,5 @@
 //
-//  WorldService+QueryBuilder.swift
+//  WorldService+QueryService.swift
 //  BevyRemoteProtocol
 //
 //  Created by Christophe Bronner on 2025-10-28.

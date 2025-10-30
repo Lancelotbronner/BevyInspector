@@ -12,12 +12,16 @@ import Foundation
 @Model final class BevyType {
 	init(_ identifier: String) {
 		self.identifier = identifier
+		name = identifier.rust_use()
 	}
 
 	#Index<BevyType>([\.identifier])
 
 	@Attribute(.unique)
 	var identifier = ""
+
+	var name = ""
+	var schemaKind: String?
 
 	private var schemaData: Data? {
 		didSet { schemaCache = nil }
@@ -39,9 +43,15 @@ import Foundation
 			schemaCache = newValue
 			if let newValue {
 				schemaData = try! JSONEncoder().encode(newValue)
+				schemaKind = newValue.kind ?? schemaKind
 			}
 		}
 	}
+
+	var items: BevyProperty?
+
+	@Relationship(deleteRule: .cascade, inverse: \BevyVariant.parent)
+	var variants: [BevyVariant] = []
 
 	@Relationship(deleteRule: .cascade, inverse: \BevyProperty.parent)
 	var properties: [BevyProperty] = []
@@ -58,10 +68,25 @@ import Foundation
 	#Unique<BevyProperty>([\.parent, \.identifier])
 
 	var parent: BevyType
-	var identifier = ""
+	var identifier: String
 
 	var type: BevyType
-	var required: Bool
+	var required = true
+}
+
+@Model final class BevyVariant {
+	init(_ identifier: String, is type: BevyType, in parent: BevyType) {
+		self.type = type
+		self.parent = parent
+		self.identifier = identifier
+	}
+
+	#Unique<BevyVariant>([\.parent, \.identifier])
+
+	var parent: BevyType
+	var identifier: String
+
+	var type: BevyType
 }
 
 @Model final class BevyUse {

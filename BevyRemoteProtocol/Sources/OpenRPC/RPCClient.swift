@@ -44,6 +44,7 @@ public extension OpenRPCClient {
 		var request = request
 		request.httpBody = body
 		let (data, _) = try await session.data(for: request)
+		print("\n\n\(String(data: data, encoding: .utf8)?.prefix(8192) ?? "")\n\n")
 		let response = try decoder.decode(Response<Int, Result>.self, from: data)
 		return response.result
 	}

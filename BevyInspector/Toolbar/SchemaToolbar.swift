@@ -8,65 +8,7 @@
 import SwiftUI
 import SwiftData
 import BevyRemoteProtocol
-
-@Observable final class SchemaModel {
-	private(set) var isFirstFetchCompleted = false
-	private(set) var status = Status.updating
-	private(set) var failure: Error?
-	private(set) var fetchingTask: Task<Void, Error>?
-	private(set) var progress: Progress?
-
-	enum Status {
-		case updating
-		case importing
-		case completed
-		case failure
-	}
-
-	func refresh(
-		modelContainer: ModelContainer,
-		bevy: BevyRemoteClient,
-	) {
-		let progress = Progress()
-		self.progress = progress
-
-		progress.completedUnitCount = 0
-		progress.totalUnitCount = 0
-		progress.localizedDescription = String(localized: "Requesting schema from server...")
-		status = .updating
-
-		fetchingTask = Task { @concurrent in
-			do {
-				let importer = SchemaImporter(modelContainer: modelContainer)
-				let schema = try await bevy.registry.schema()
-				await MainActor.run { status = .importing }
-				try await importer.import(schema, progress: progress)
-				await MainActor.run {
-					status = .completed
-					progress.localizedDescription = String(localized: "Completed.")
-				}
-			} catch {
-				await MainActor.run {
-					failure = error
-					status = .failure
-				}
-			}
-			await MainActor.run {
-				fetchingTask = nil
-				self.progress = nil
-			}
-		}
-	}
-
-	func firstTimeRefresh(
-		modelContainer: ModelContainer,
-		bevy: BevyRemoteClient,
-	) {
-		guard !isFirstFetchCompleted else { return }
-		isFirstFetchCompleted = true
-		refresh(modelContainer: modelContainer, bevy: bevy)
-	}
-}
+import OSLog
 
 struct SchemaToolbar: ToolbarContent {
 	@Environment(\.modelContext) private var modelContext

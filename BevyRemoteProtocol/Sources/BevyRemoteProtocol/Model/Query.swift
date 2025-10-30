@@ -1,5 +1,5 @@
 //
-//  WorldService+Query.swift
+//  Query.swift
 //  BevyRemoteProtocol
 //
 //  Created by Christophe Bronner on 2025-10-28.
@@ -55,8 +55,19 @@ public extension QueryData {
 	init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		components = try container.decodeIfPresent([String].self, forKey: .components) ?? []
-		option = try container.decodeIfPresent([String].self, forKey: .option) ?? []
-		all = try container.decodeIfPresent(Bool.self, forKey: .all) ?? false
+		var isOptionHandled = false
+		if let option = try? container.decodeIfPresent(String.self, forKey: .option) {
+			isOptionHandled = true
+			switch option {
+			case "all": all = true
+			default:
+				let context = DecodingError.Context(codingPath: container.codingPath, debugDescription: "Unknown option '\(option)', expected 'all' or array of components.")
+				throw DecodingError.typeMismatch(QueryData.self, context)
+			}
+		}
+		if !isOptionHandled {
+			option = try container.decodeIfPresent([String].self, forKey: .option) ?? []
+		}
 		has = try container.decodeIfPresent([String].self, forKey: .has) ?? []
 	}
 
@@ -76,7 +87,7 @@ public extension QueryData {
 	}
 
 	private enum CodingKeys: CodingKey {
-		case components, option, all, has
+		case components, option, has
 	}
 }
 
@@ -183,13 +194,28 @@ public extension QueryRow {
 public struct QueryColumn: Identifiable, Hashable, Comparable, LosslessStringConvertible, Codable, Sendable {
 	public let description: String
 
-	public var id: Self { self }
-
 	@inlinable public init(_ description: String) {
 		self.description = description
 	}
+}
 
-	@inlinable public static func < (lhs: QueryColumn, rhs: QueryColumn) -> Bool {
-		lhs.description < rhs.description
+public extension QueryColumn {
+	var id: Self { self }
+
+	var name: Substring {
+		guard
+			let i = description.lastIndex(of: ":").map(description.index(after:)),
+			i < description.endIndex
+		else { return description[...] }
+		return description[i...]
+	}
+
+	var path: Substring {
+		guard let i = description.lastIndex(of: ":") else { return description[...] }
+		return description[..<i].dropLast()
+	}
+
+	@inlinable static func < (lhs: QueryColumn, rhs: QueryColumn) -> Bool {
+		lhs.name < rhs.name
 	}
 }

@@ -13,7 +13,14 @@ import Foundation
 @ModelActor actor SchemaImporter {
 	private var _types: [String: BevyType] = [:]
 
-	func `import`(_ schema: [String: BevySchema], progress: Progress) async throws {
+	func `import`(
+		registry: [String: BevySchema],
+		specification: Specification,
+		progress: Progress
+	) async throws {
+		for (key, schema) in specification.components.schemas {
+			print(key, schema.description)
+		}
 		await MainActor.run {
 			progress.completedUnitCount = 0
 			progress.totalUnitCount = 0
@@ -21,7 +28,7 @@ import Foundation
 		}
 
 		try modelContext.transaction {
-			for (typeId, typeSchema) in schema {
+			for (typeId, typeSchema) in registry {
 				let currentType = BevyType(typeId)
 				currentType.schema = typeSchema
 				modelContext.insert(currentType)
@@ -39,26 +46,27 @@ import Foundation
 		await MainActor.run {
 			progress.localizedDescription = String(localized: "Processing schema...")
 			progress.completedUnitCount = 0
-			progress.totalUnitCount = Int64(schema.count)
+			progress.totalUnitCount = Int64(registry.count)
 		}
 
 		try modelContext.transaction {
-			for (typeId, typeSchema) in schema {
+			for (typeId, typeSchema) in registry {
 				let currentType = type(typeId)
 				progress.localizedAdditionalDescription = typeId
+				let required = typeSchema.type.required ?? []
 
-				for (propertyId, propertySchema) in typeSchema.properties ?? [:] {
-					guard let propertyData = try? propertySchema.decode(as: BevyPropertySchema.self) else { continue }
+				for (propertyId, propertySchema) in typeSchema.type.properties ?? [:] {
+					guard let propertyData = try? propertySchema.decode(as: SchemaReference.self) else { continue }
 					let currentProperty = BevyProperty(
 						propertyId,
 						is: type(propertyData.type.ref.dropFirst(8)),
-						required: typeSchema.required?.contains(propertyId) ?? false,
+						required: required.contains(propertyId),
 						in: currentType)
 					modelContext.insert(currentProperty)
 					currentType.properties.append(currentProperty)
 				}
 
-					progress.completedUnitCount += 1
+				progress.completedUnitCount += 1
 			}
 		}
 	}

@@ -5,6 +5,12 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
+nonisolated extension String {
+	func rust_use() -> String {
+		replacing(/\w+::/, with: "")
+	}
+}
+
 nonisolated extension Sequence {
 	func lookup<Key: Hashable>(by key: KeyPath<Element, Key>) -> Dictionary<Key, Element> {
 		Dictionary(uniqueKeysWithValues: map { ($0[keyPath: key], $0) })

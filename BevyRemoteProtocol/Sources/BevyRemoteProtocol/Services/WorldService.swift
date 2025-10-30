@@ -27,5 +27,8 @@ public extension WorldService {
 		query.strict = strict
 		return try await self.query(query)
 	}
-}
 
+	func entity(_ entity: Entity) -> EntityService {
+		EntityService(client: client, entity: entity)
+	}
+}

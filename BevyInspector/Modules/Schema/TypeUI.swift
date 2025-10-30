@@ -13,45 +13,39 @@ struct TypeLabel: View {
 	let data: BevyType
 
 	var body: some View {
-		Text(data.identifier)
+		Text(data.name.isEmpty ? data.identifier : data.name)
+			.help(data.identifier)
 			.monospaced()
 	}
 }
 
 struct TypeForm: View {
-	@State private var presented: IdentifiedSchema?
+//	@State private var presented: IdentifiedSchema?
 	let data: BevyType
 
 	var body: some View {
 		Form {
-			Section("Type") {
-				LabeledContent("Identifier", value: data.identifier)
-			}
-			if !data.properties.isEmpty {
-				Section("Properties") {
-					ForEach(data.properties) { property in
-						PropertyLabel(data: property)
-					}
-				}
+			if let schema = data.schema {
+				SchemaForm(schema: schema)
 			}
 		}
 		.formStyle(.grouped)
-		.sheet(item: $presented) { presented in
-			NavigationStack {
-				Form {
-					SchemaInspector(schema: presented.schema)
-				}
-				.formStyle(.grouped)
-				.navigationTitle("Schema")
-			}
-		}
-		.toolbar {
-			if let schema = data.schema {
-				Button("View Schema") {
-					presented = IdentifiedSchema(type: data, schema: schema)
-				}
-			}
-		}
+//		.sheet(item: $presented) { presented in
+//			NavigationStack {
+//				Form {
+//					SchemaInspector(schema: presented.schema)
+//				}
+//				.formStyle(.grouped)
+//				.navigationTitle("Schema")
+//			}
+//		}
+//		.toolbar {
+//			if let schema = data.schema {
+//				Button("View Schema") {
+//					presented = IdentifiedSchema(type: data, schema: schema)
+//				}
+//			}
+//		}
 	}
 }
 

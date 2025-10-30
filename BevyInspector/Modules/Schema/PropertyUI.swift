@@ -18,7 +18,6 @@ struct PropertyLabel: View {
 		} label: {
 			HStack(alignment: .firstTextBaseline) {
 				Text(data.identifier)
-					.font(.headline)
 					.monospaced()
 				IsRequired(data.required)
 			}

@@ -18,13 +18,87 @@ public enum JSON: Hashable, Codable, Sendable {
 	case object([String: JSON])
 }
 
+//MARK: - Indexing
+
 public extension JSON {
-	func decode<T: Decodable>(as type: T.Type = T.self) throws -> T {
-		let data = try JSONEncoder().encode(self)
-		let result = try JSONDecoder().decode(T.self, from: data)
-		return result
+	subscript(key: String) -> JSON {
+		get {
+			switch self {
+			case let .object(object): object[key] ?? .undefined
+			default: .undefined
+			}
+		}
+		set {
+			switch self {
+			case var .object(object):
+				object[key] = newValue
+				self = .object(object)
+			default: break
+			}
+		}
 	}
 
+	subscript<T: Codable>(type: T.Type) -> T? {
+		get { try? decode() }
+		set {
+			guard let newValue, let json = try? JSON(newValue) else { return }
+			self = json
+		}
+	}
+
+	var isEmptyCollection: Bool {
+		switch self {
+		case .array(let array): array.isEmpty
+		case .object(let dictionary): dictionary.isEmpty
+		default: false
+		}
+	}
+}
+
+//MARK: - Casting
+
+public extension JSON {
+	var string: String? {
+		switch self {
+		case let .string(value): value
+		default: nil
+		}
+	}
+
+	var int: Int? {
+		switch self {
+		case let .integer(value): value
+		default: nil
+		}
+	}
+
+	var float: Float? {
+		get {
+			switch self {
+			case let .integer(value): Float(value)
+			case let .number(value): Float(value)
+			default: nil
+			}
+		}
+		set {
+			guard let newValue else { return }
+			self = .number(Double(newValue))
+		}
+	}
+
+	var array: [JSON] {
+		get throws {
+			guard case let .array(value) = self else {
+				throw DecodingError.typeMismatch([JSON].self, .init(codingPath: [], debugDescription: ""))
+			}
+			return value
+		}
+	}
+}
+
+//MARK: - Description
+
+public extension JSON {
 	var description: String {
 		switch self {
 		case let .string(value): "\"\(value.replacingOccurrences(of: "\"", with: "\\\""))\""
@@ -50,7 +124,11 @@ public extension JSON {
 			return description
 		}
 	}
+}
 
+//MARK: - Codable
+
+public extension JSON {
 	init(from decoder: any Decoder) throws {
 		let container = try decoder.singleValueContainer()
 		if let stringValue = try? container.decode(String.self) {
@@ -85,46 +163,20 @@ public extension JSON {
 		case .object(let dictionary): try container.encode(dictionary)
 		}
 	}
-}
 
-public extension JSON {
-	var asString: String {
-		get throws {
-			guard case let .string(value) = self else {
-				throw DecodingError.typeMismatch(String.self, .init(codingPath: [], debugDescription: ""))
-			}
-			return value
-		}
+	init(_ value: some Encodable) throws {
+		let data = try JSONEncoder().encode(value)
+		self = try JSONDecoder().decode(JSON.self, from: data)
 	}
 
-	var asInt: Int {
-		get throws {
-			guard case let .integer(value) = self else {
-				throw DecodingError.typeMismatch(Int.self, .init(codingPath: [], debugDescription: ""))
-			}
-			return value
-		}
-	}
-
-	var asArray: [JSON] {
-		get throws {
-			guard case let .array(value) = self else {
-				throw DecodingError.typeMismatch([JSON].self, .init(codingPath: [], debugDescription: ""))
-			}
-			return value
-		}
+	func decode<T: Decodable>(as type: T.Type = T.self) throws -> T {
+		let data = try JSONEncoder().encode(self)
+		let result = try JSONDecoder().decode(T.self, from: data)
+		return result
 	}
 }
 
-public extension Encodable {
-	var encoded: JSON {
-		get throws {
-			let data = try JSONEncoder().encode(self)
-			let json = try JSONDecoder().decode(JSON.self, from: data)
-			return json
-		}
-	}
-}
+//MARK: - Coding Key
 
 public enum AnyCodingKey: CodingKey, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral {
 	case string(String)

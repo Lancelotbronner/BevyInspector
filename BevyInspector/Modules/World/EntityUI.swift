@@ -11,6 +11,7 @@ import BevyRemoteProtocol
 import OpenRPC
 
 struct EntityForm: View {
+	@Environment(SchemaModel.self) private var schema
 	let model: EntityModel
 
 	var body: some View {
@@ -19,16 +20,12 @@ struct EntityForm: View {
 				LabeledContent("ID", value: model.id.rawValue, format: .number.grouping(.never))
 				LabeledContent("Name", value: model.row.Name ?? "")
 			}
+			if let progress = schema.progress {
+				ProgressView(progress)
+			}
 			ForEach(model.query.columns) { column in
 				if let data = model.row.value(of: column) {
-					Section {
-						Text(data.description)
-							.foregroundStyle(.secondary)
-							.font(.caption)
-					} header: {
-						Text(column.description)
-							.foregroundStyle(.primary)
-					}
+					ComponentField(.constant(data), as: column)
 				}
 			}
 		}

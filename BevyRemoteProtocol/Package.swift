@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
 	name: "BevyRemoteProtocol",
 	platforms: [
-		.macOS(.v12),
+		.macOS(.v26),
 	],
 	products: [
 		.library(name: "BevyRemoteProtocol", targets: ["BevyRemoteProtocol"]),

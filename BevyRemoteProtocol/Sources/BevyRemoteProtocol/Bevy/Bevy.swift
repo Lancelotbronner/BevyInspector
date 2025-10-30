@@ -28,20 +28,22 @@ public extension QueryColumn {
 	static let Name = QueryColumn("bevy_ecs::name::Name")
 	static let ChildOf = QueryColumn("bevy_ecs::hierarchy::ChildOf")
 	static let Children = QueryColumn("bevy_ecs::hierarchy::Children")
+	static let Transform = QueryColumn("bevy_transform::components::transform::Transform")
+	static let GlobalTransform = QueryColumn("bevy_transform::components::global_transform::GlobalTransform")
 }
 
 public extension QueryRow {
 	var Name: String? {
-		try? self.value(of: .Name)?.asString
+		value(of: .Name)?.string
 	}
 
 	var ChildOf: Entity? {
-		(try? self.value(of: .ChildOf)?.asInt).map(Entity.init)
+		value(of: .ChildOf)?.int.map(Entity.init)
 	}
 
 	var Children: [Entity]? {
-		(try? self.value(of: .Children)?.asArray ?? [])?
-			.compactMap { try? $0.asInt }
+		(try? value(of: .Children)?.array ?? [])?
+			.compactMap(\.int)
 			.map(Entity.init)
 	}
 }
