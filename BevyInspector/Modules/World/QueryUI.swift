@@ -40,7 +40,7 @@ struct QueryTableView: View {
 					if let name = model.row.Name {
 						Text(name)
 					} else {
-						Text(model.id.rawValue, format: .number.grouping(.never))
+						Text(model.id, format: .number.grouping(.never))
 							.foregroundStyle(.secondary)
 					}
 				}

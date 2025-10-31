@@ -5,45 +5,10 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
-public struct Entity: Identifiable, RawRepresentable, Hashable, Codable, Sendable {
-	public let rawValue: Int
+import OpenRPC
 
-	@inlinable public init(rawValue: Int) {
-		self.rawValue = rawValue
-	}
+public typealias Entity = UInt
 
-	@inlinable public var id: Self { self }
-
-	@inlinable public init(from decoder: any Decoder) throws {
-		rawValue = try decoder.singleValueContainer().decode(Int.self)
-	}
-
-	@inlinable public func encode(to encoder: any Encoder) throws {
-		var container = encoder.singleValueContainer()
-		try container.encode(rawValue)
-	}
-}
-
-public extension QueryColumn {
-	static let Name = QueryColumn("bevy_ecs::name::Name")
-	static let ChildOf = QueryColumn("bevy_ecs::hierarchy::ChildOf")
-	static let Children = QueryColumn("bevy_ecs::hierarchy::Children")
-	static let Transform = QueryColumn("bevy_transform::components::transform::Transform")
-	static let GlobalTransform = QueryColumn("bevy_transform::components::global_transform::GlobalTransform")
-}
-
-public extension QueryRow {
-	var Name: String? {
-		value(of: .Name)?.string
-	}
-
-	var ChildOf: Entity? {
-		value(of: .ChildOf)?.int.map(Entity.init)
-	}
-
-	var Children: [Entity]? {
-		(try? value(of: .Children)?.array ?? [])?
-			.compactMap(\.int)
-			.map(Entity.init)
-	}
+public protocol EntityComponents {
+	var components: [String: JSON] { get set }
 }

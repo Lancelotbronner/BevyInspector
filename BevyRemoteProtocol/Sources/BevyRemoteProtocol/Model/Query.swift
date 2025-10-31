@@ -122,13 +122,21 @@ public extension QueryFilter {
 	}
 }
 
-public struct QueryResult: Codable, Sendable {
+public struct QueryResult: Codable, Hashable, Sendable {
 	public var rows: [QueryRow] = []
 
 	public init() {}
 }
 
 public extension QueryResult {
+	func row(of entity: Entity) -> QueryRow? {
+		rows.first { $0.entity == entity }
+	}
+
+	func row(of entity: String) -> QueryRow? {
+		rows.first { $0.Name == entity }
+	}
+
 	func columns(excluding: Set<String>) -> [QueryColumn] {
 		var columns = Set<String>()
 		columns.reserveCapacity(max(8, rows.count * 2))
@@ -143,9 +151,17 @@ public extension QueryResult {
 		let container = try decoder.singleValueContainer()
 		rows = try container.decode([QueryRow].self)
 	}
+
+	func hash(into hasher: inout Hasher) {
+		hasher.combine(ObjectIdentifier(unsafeBitCast(self, to: AnyObject.self)))
+	}
+
+	static func == (lhs: QueryResult, rhs: QueryResult) -> Bool {
+		unsafeBitCast(lhs, to: AnyObject.self) === unsafeBitCast(rhs, to: AnyObject.self)
+	}
 }
 
-public struct QueryRow: Codable, Identifiable, Sendable {
+public struct QueryRow: Codable, Identifiable, EntityComponents, Sendable {
 	/// The ID of a query-matching entity.
 	public var entity: Entity
 	/// A map associating each type name from components/option to its value on the matching entity if the component is present.
@@ -169,18 +185,6 @@ public struct QueryRow: Codable, Identifiable, Sendable {
 }
 
 public extension QueryRow {
-	@inlinable func value(of column: QueryColumn) -> JSON? {
-		components[column.description]
-	}
-
-	@inlinable func value(of column: String) -> JSON? {
-		components[column]
-	}
-
-	@inlinable func columns() -> [QueryColumn] {
-		components.keys.lazy.map(QueryColumn.init).sorted()
-	}
-
 	@inlinable var id: Entity { entity }
 
 	init(from decoder: any Decoder) throws {

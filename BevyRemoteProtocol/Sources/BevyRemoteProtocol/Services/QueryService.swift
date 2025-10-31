@@ -7,18 +7,30 @@
 
 import OpenRPC
 
-public struct QueryService: Sendable {
+public struct QueryService: ~Copyable {
 	public let client: OpenRPCClient
 	public var query = Query()
+
+	init(client: OpenRPCClient) {
+		self.client = client
+	}
 }
 
 public extension QueryService {
-	mutating func modify(_ modifier: (inout Query) -> Void) -> QueryService {
+	consuming func modify(_ modifier: (inout Query) -> Void) -> QueryService {
 		modifier(&query)
 		return self
 	}
 
-	mutating func with(_ components: some Sequence<String>) -> QueryService {
-		modify { $0.data.components.append(contentsOf: components) }
+	consuming func with(_ components: some Sequence<some CustomStringConvertible>) -> QueryService {
+		modify { $0.filter.with.append(contentsOf: components.lazy.map(\.description)) }
+	}
+
+	consuming func select(_ components: some Sequence<some CustomStringConvertible>) -> QueryService {
+		modify { $0.data.components.append(contentsOf: components.lazy.map(\.description)) }
+	}
+
+	consuming func result() async throws -> QueryResult {
+		try await WorldService(client: client).query(query)
 	}
 }

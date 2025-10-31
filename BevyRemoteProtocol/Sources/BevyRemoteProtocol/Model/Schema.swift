@@ -18,9 +18,7 @@ public struct BevySchema: Codable, Sendable {
 	public var crateName: String?
 	/// Bevy specific field, names of the types that type reflects.
 	public var reflectTypes: [String]?
-	public var schemaType: SchemaType?
-	public var kind: String?
-	public var type = SchemaKind.Value
+	public var type = SchemaType.Value
 }
 
 public extension BevySchema {
@@ -31,8 +29,7 @@ public extension BevySchema {
 		self.modulePath = try container.decodeIfPresent(String.self, forKey: .modulePath)
 		self.crateName = try container.decodeIfPresent(String.self, forKey: .crateName)
 		self.reflectTypes = try container.decodeIfPresent([String].self, forKey: .reflectTypes)
-		kind = try container.decodeIfPresent(String.self, forKey: .kind)
-		type = try SchemaKind(from: decoder)
+		type = try SchemaType(from: decoder)
 	}
 
 	func encode(to encoder: any Encoder) throws {
@@ -42,7 +39,6 @@ public extension BevySchema {
 		try container.encodeIfPresent(self.modulePath, forKey: .modulePath)
 		try container.encodeIfPresent(self.crateName, forKey: .crateName)
 		try container.encodeIfPresent(self.reflectTypes, forKey: .reflectTypes)
-		try container.encodeIfPresent(kind, forKey: .kind)
 		try type.encode(to: encoder)
 	}
 
@@ -56,22 +52,14 @@ public extension BevySchema {
 	}
 }
 
-public enum SchemaType: String, Codable, Sendable {
-	case String
-	case Float
-	case Uint
-	case Int
-	case Object
-	case Array
-	case Boolean
-	case Set
-	case Null
+public enum SchemaKind: String, Codable, Hashable, Sendable {
+	case Struct, Object, Enum, Map, Array, List, Set, Tuple, TupleStruct, Value
 }
 
-public indirect enum SchemaKind: Codable, Sendable {
+public enum SchemaType: Codable, Sendable {
 	case Struct(properties: [String: JSON], required: [String], additional: Bool)
 	case Enum(variants: [SchemaVariant])
-	case Map(key: SchemaKind, value: SchemaKind)
+	case Map(key: SchemaReference, value: SchemaReference)
 	case Array(SchemaSequence)
 	case List(SchemaSequence)
 	case Set(SchemaSequence)
@@ -82,7 +70,7 @@ public indirect enum SchemaKind: Codable, Sendable {
 }
 
 public struct SchemaSequence: Codable, Sendable {
-	public var items: SchemaItems
+	public var items: SchemaReference
 }
 
 public struct SchemaTuple: Codable, Sendable {
@@ -94,19 +82,19 @@ public struct SchemaTuple: Codable, Sendable {
 	}
 }
 
-public extension SchemaKind {
-	var discriminator: String {
+public extension SchemaType {
+	var discriminator: SchemaKind {
 		switch self {
-		case .Struct: "Struct"
-		case .Enum: "Enum"
-		case .Map: "Map"
-		case .Array: "Array"
-		case .List: "List"
-		case .Set: "Set"
-		case .Tuple: "Tuple"
-		case .TupleStruct: "TupleStruct"
-		case .Value: "Value"
-		case .Ref: "Ref"
+		case let .Struct(_,_,open): open ? .Object : .Struct
+		case .Enum: .Enum
+		case .Map: .Map
+		case .Array: .Array
+		case .List: .List
+		case .Set: .Set
+		case .Tuple: .Tuple
+		case .TupleStruct: .TupleStruct
+		case .Value: .Value
+		case .Ref: fatalError()
 		}
 	}
 
@@ -134,8 +122,8 @@ public extension SchemaKind {
 				required: try container.decodeIfPresent([String].self, forKey: .required) ?? [],
 				additional: try container.decodeIfPresent(Bool.self, forKey: .additionalProperties) ?? false)
 			case "Map": self = .Map(
-				key: try container.decodeIfPresent(SchemaKind.self, forKey: .keyType) ?? .Value,
-				value: try container.decodeIfPresent(SchemaKind.self, forKey: .valueType) ?? .Value)
+				key: try container.decode(SchemaReference.self, forKey: .keyType),
+				value: try container.decode(SchemaReference.self, forKey: .valueType))
 			case "Enum": self = .Enum(
 				variants: try container.decodeIfPresent([SchemaVariant].self, forKey: .oneOf) ?? [])
 			case "Array": self = .Array(try SchemaSequence(from: decoder))
@@ -147,7 +135,7 @@ public extension SchemaKind {
 			case "Ref": break known
 			default:
 				let context = DecodingError.Context(codingPath: container.codingPath, debugDescription: "Unknown schema value '\(kind)'")
-				throw DecodingError.typeMismatch(SchemaKind.self, context)
+				throw DecodingError.typeMismatch(SchemaType.self, context)
 			}
 			return
 		}
@@ -161,7 +149,7 @@ public extension SchemaKind {
 
 	func encode(to encoder: any Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encode(discriminator, forKey: .kind)
+		try container.encode(discriminator.rawValue, forKey: .kind)
 		switch self {
 		case let .Struct(properties, required, additional):
 			try container.encode(properties, forKey: .properties)
@@ -194,7 +182,7 @@ public extension SchemaKind {
 public struct SchemaVariant: Codable, Sendable {
 	public var shortPath: String
 	public var typePath: String?
-	public var type = SchemaKind.Value
+	public var type = SchemaType.Value
 }
 
 public extension SchemaVariant {
@@ -207,7 +195,7 @@ public extension SchemaVariant {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		shortPath = try container.decode(String.self, forKey: .shortPath)
 		typePath = try container.decodeIfPresent(String.self, forKey: .typePath)
-		type = try SchemaKind(from: decoder)
+		type = try SchemaType(from: decoder)
 	}
 
 	func encode(to encoder: any Encoder) throws {
@@ -256,6 +244,10 @@ public extension SchemaItems {
 public struct SchemaReference: Codable, Sendable {
 	public var type: TypeSchema
 
+	public var identifier: Substring {
+		type.ref.dropFirst(8)
+	}
+
 	public struct TypeSchema: Codable, Sendable {
 		public var ref: String
 
@@ -264,4 +256,3 @@ public struct SchemaReference: Codable, Sendable {
 		}
 	}
 }
-

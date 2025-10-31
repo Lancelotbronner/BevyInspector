@@ -13,7 +13,7 @@ extension EnvironmentValues {
 	@Entry var bevy = BevyRemoteClient(client: OpenRPCClient())
 }
 
-extension SchemaKind {
+nonisolated extension SchemaType {
 	var isEmpty: Bool {
 		switch self {
 		case let .Struct(properties, _, _): properties.isEmpty
@@ -25,31 +25,16 @@ extension SchemaKind {
 }
 
 nonisolated extension SchemaKind {
-	var properties: [String: JSON]? {
-		switch self {
-		case let .Struct(properties, _, _): properties
-		default: nil
-		}
-	}
-
-	var required: [String]? {
-		switch self {
-		case let .Struct(_, v, _): v
-		default: nil
-		}
-	}
-
 	var title: LocalizedStringKey {
 		switch self {
 		case .Array: "Array"
-		case .Struct: "Struct"
+		case .Struct, .Object: "Struct"
 		case .Enum: "Enum"
 		case .Map: "Map"
 		case .List: "List"
 		case .Tuple: "Tuple"
 		case .Set: "Set"
 		case .Value: "Value"
-		case .Ref: "Ref"
 		case .TupleStruct: "TupleStruct"
 		}
 	}

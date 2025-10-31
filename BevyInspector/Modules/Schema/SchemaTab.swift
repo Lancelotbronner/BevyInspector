@@ -22,9 +22,9 @@ struct SchemaDetail: View {
 	var body: some View {
 		VStack {
 			if let type = navigation.schema {
-				TypeForm(data: type)
+				SchemaForm(data: type)
 					.navigationDestination(for: BevyType.self) {
-						TypeForm(data: $0)
+						SchemaForm(data: $0)
 					}
 			} else if let progress = schema.progress {
 				ProgressView(progress)

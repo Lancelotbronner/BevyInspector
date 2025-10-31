@@ -21,6 +21,14 @@ struct DefaultComponentUI: ComponentUI {
 	}
 }
 
+struct Vec3UI: ComponentUI {
+	@Binding var data: SIMD3<Float>
+
+	var body: some View {
+		Vec3Fields(data: $data)
+	}
+}
+
 struct TransformUI: ComponentUI {
 	@Binding var data: Transform
 

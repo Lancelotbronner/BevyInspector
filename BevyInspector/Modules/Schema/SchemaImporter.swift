@@ -30,7 +30,10 @@ import Foundation
 		try modelContext.transaction {
 			for (typeId, typeSchema) in registry {
 				let currentType = BevyType(typeId)
-				currentType.schema = typeSchema
+				currentType.identifier = typeSchema.typePath ?? currentType.identifier
+				currentType.name = typeSchema.shortPath ?? currentType.name
+				currentType.module = typeSchema.modulePath ?? currentType.module
+				currentType.crate = typeSchema.crateName ?? currentType.crate
 				modelContext.insert(currentType)
 			}
 		}
@@ -53,21 +56,64 @@ import Foundation
 			for (typeId, typeSchema) in registry {
 				let currentType = type(typeId)
 				progress.localizedAdditionalDescription = typeId
-				let required = typeSchema.type.required ?? []
-
-				for (propertyId, propertySchema) in typeSchema.type.properties ?? [:] {
-					guard let propertyData = try? propertySchema.decode(as: SchemaReference.self) else { continue }
-					let currentProperty = BevyProperty(
-						propertyId,
-						is: type(propertyData.type.ref.dropFirst(8)),
-						required: required.contains(propertyId),
-						in: currentType)
-					modelContext.insert(currentProperty)
-					currentType.properties.append(currentProperty)
-				}
-
+				ingest(typeSchema.type, into: currentType)
 				progress.completedUnitCount += 1
 			}
+		}
+	}
+
+	private func ingest(_ schemaType: SchemaType, into currentType: BevyType) {
+		currentType.kind = schemaType.discriminator
+		switch schemaType {
+		case let .Struct(properties, required, additional):
+			currentType.properties = []
+			if additional {
+				currentType.kind = .Object
+			}
+			for (propertyId, propertySchema) in properties {
+				guard let propertyData = try? propertySchema.decode(as: SchemaReference.self) else { continue }
+				let currentProperty = BevyProperty(
+					propertyId,
+					is: type(propertyData.type.ref.dropFirst(8)),
+					required: required.contains(propertyId),
+					in: currentType)
+				modelContext.insert(currentProperty)
+				currentType.properties.append(currentProperty)
+			}
+
+		case let .Enum(variants):
+			currentType.variants = []
+			for variantSchema in variants {
+				var type: BevyType?
+				if !variantSchema.type.isEmpty {
+					let tmp = self.type("\(currentType.identifier)::\(variantSchema.shortPath)")
+					ingest(variantSchema.type, into: tmp)
+					tmp.module = currentType.module
+					tmp.crate = currentType.crate
+					type = tmp
+				}
+
+				let currentVariant = BevyVariant(
+					name: variantSchema.shortPath,
+					identifier: variantSchema.typePath,
+					is: type,
+					in: currentType)
+				modelContext.insert(currentVariant)
+				currentType.variants.append(currentVariant)
+			}
+
+		case let .Array(schema), let .List(schema), let .Set(schema):
+			currentType.items = self.type(schema.items.identifier)
+
+		case let .Tuple(schema), let .TupleStruct(schema):
+			currentType.elements = schema.prefixItems.map(\.identifier).map(type)
+
+		case let .Map(key, value):
+			currentType.key = type(key.identifier)
+			currentType.items = type(value.identifier)
+
+		case .Ref(_): fatalError()
+		case .Value: break
 		}
 	}
 

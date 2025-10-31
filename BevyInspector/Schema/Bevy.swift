@@ -20,41 +20,43 @@ import Foundation
 	@Attribute(.unique)
 	var identifier = ""
 
+	public var module: String?
+	public var crate: String?
+	public var reflect: [String]?
+
 	var name = ""
-	var schemaKind: String?
+	var kind = SchemaKind.Value
 
-	private var schemaData: Data? {
-		didSet { schemaCache = nil }
-	}
+	var key: BevyType?
+	var items: BevyType?
 
-	@Transient private var schemaCache: BevySchema?
-
-	var schema: BevySchema? {
-		get {
-			if let schemaCache {
-				return schemaCache
-			}
-			guard let schemaData else { return nil }
-			let tmp = try! JSONDecoder().decode(BevySchema.self, from: schemaData)
-			schemaCache = tmp
-			return tmp
-		}
-		set {
-			schemaCache = newValue
-			if let newValue {
-				schemaData = try! JSONEncoder().encode(newValue)
-				schemaKind = newValue.kind ?? schemaKind
-			}
-		}
-	}
-
-	var items: BevyProperty?
+	@Relationship(inverse: \BevyType.tuples)
+	var elements: [BevyType] = []
+	var tuples: [BevyType] = []
 
 	@Relationship(deleteRule: .cascade, inverse: \BevyVariant.parent)
 	var variants: [BevyVariant] = []
 
 	@Relationship(deleteRule: .cascade, inverse: \BevyProperty.parent)
 	var properties: [BevyProperty] = []
+}
+
+extension BevyType: CustomDebugStringConvertible {
+	var debugDescription: String { identifier }
+
+	var isEmpty: Bool {
+		switch kind {
+		case .Struct, .Object: properties.isEmpty
+		case .Tuple, .TupleStruct: elements.isEmpty
+		case .Enum: variants.isEmpty
+		case .Value: true
+		default: false
+		}
+	}
+
+	func variant(_ name: String) -> BevyVariant? {
+		variants.first { $0.name == name }
+	}
 }
 
 @Model final class BevyProperty {
@@ -67,7 +69,7 @@ import Foundation
 
 	#Unique<BevyProperty>([\.parent, \.identifier])
 
-	var parent: BevyType
+	var parent: BevyType?
 	var identifier: String
 
 	var type: BevyType
@@ -75,18 +77,20 @@ import Foundation
 }
 
 @Model final class BevyVariant {
-	init(_ identifier: String, is type: BevyType, in parent: BevyType) {
+	init(name: String, identifier: String?, is type: BevyType?, in parent: BevyType) {
 		self.type = type
 		self.parent = parent
+		self.name = name
 		self.identifier = identifier
 	}
 
-	#Unique<BevyVariant>([\.parent, \.identifier])
+	#Unique<BevyVariant>([\.parent, \.name])
 
-	var parent: BevyType
-	var identifier: String
+	var parent: BevyType?
+	var name: String
+	var identifier: String?
 
-	var type: BevyType
+	var type: BevyType?
 }
 
 @Model final class BevyUse {

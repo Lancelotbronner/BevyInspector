@@ -17,7 +17,10 @@ struct EntityForm: View {
 	var body: some View {
 		Form {
 			Section("Entity") {
-				LabeledContent("ID", value: model.id.rawValue, format: .number.grouping(.never))
+				LabeledContent("ID") {
+					Text(model.id, format: .number.grouping(.never))
+						.monospaced()
+				}
 				LabeledContent("Name", value: model.row.Name ?? "")
 			}
 			if let progress = schema.progress {
@@ -29,6 +32,6 @@ struct EntityForm: View {
 				}
 			}
 		}
-		.monospaced()
+//		.formStyle(InspectorFormStyle())
 	}
 }

@@ -38,10 +38,42 @@ public extension JSON {
 		}
 	}
 
+	subscript(i: Int) -> JSON {
+		get {
+			switch self {
+			case let .array(v): v.indices.contains(i) ? v[i] : .undefined
+			default: .undefined
+			}
+		}
+		set {
+			switch self {
+			case var .array(v):
+				if v.indices.contains(i) {
+					v[i] = newValue
+				} else if i >= v.endIndex {
+					for _ in v.endIndex..<i {
+						v.append(.undefined)
+					}
+					v.append(newValue)
+				}
+				self = .array(v)
+			default: break
+			}
+		}
+	}
+
 	subscript<T: Codable>(type: T.Type) -> T? {
 		get { try? decode() }
 		set {
 			guard let newValue, let json = try? JSON(newValue) else { return }
+			self = json
+		}
+	}
+
+	subscript<T: Codable>(type: T.Type, defaultValue: T) -> T {
+		get { (try? decode()) ?? defaultValue }
+		set {
+			guard let json = try? JSON(newValue) else { return }
 			self = json
 		}
 	}
@@ -59,16 +91,112 @@ public extension JSON {
 
 public extension JSON {
 	var string: String? {
-		switch self {
-		case let .string(value): value
-		default: nil
+		get {
+			switch self {
+			case let .string(value): value
+			default: nil
+			}
+		}
+		set { self = newValue.map(Self.string) ?? self }
+	}
+
+	var u8: UInt8? {
+		get {
+			if case let .integer(v) = self, v < Int(UInt8.max) { .init(v) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(newValue))
 		}
 	}
 
-	var int: Int? {
-		switch self {
-		case let .integer(value): value
-		default: nil
+	var u16: UInt16? {
+		get {
+			if case let .integer(v) = self, v < Int(UInt16.max) { .init(v) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(newValue))
+		}
+	}
+
+	var u32: UInt16? {
+		get {
+			if case let .integer(v) = self, v < Int(UInt32.max) { .init(v) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(newValue))
+		}
+	}
+
+	var u64: UInt64? {
+		get {
+			if case let .integer(v) = self { .init(bitPattern: Int64(v)) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(newValue))
+		}
+	}
+
+	var usize: UInt? {
+		get {
+			if case let .integer(v) = self { .init(bitPattern: v) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(bitPattern: newValue))
+		}
+	}
+
+	var i8: Int8? {
+		get {
+			if case let .integer(v) = self, v < Int(Int8.max) { .init(v) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(newValue))
+		}
+	}
+
+	var i16: Int8? {
+		get {
+			if case let .integer(v) = self, v < Int(Int16.max) { .init(v) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(newValue))
+		}
+	}
+
+	var i32: Int32? {
+		get {
+			if case let .integer(v) = self, v < Int(Int32.max) { .init(v) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(newValue))
+		}
+	}
+
+	var i64: Int8? {
+		get {
+			if case let .integer(v) = self, v < Int(Int64.max) { .init(v) } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(Int(newValue))
+		}
+	}
+
+	var isize: Int? {
+		get {
+			if case let .integer(v) = self { v } else { nil }
+		}
+		set {
+			guard let newValue else { return }
+			self = .integer(newValue)
 		}
 	}
 
@@ -83,6 +211,33 @@ public extension JSON {
 		set {
 			guard let newValue else { return }
 			self = .number(Double(newValue))
+		}
+	}
+
+	var double: Double? {
+		get {
+			switch self {
+			case let .integer(value): Double(value)
+			case let .number(value): Double(value)
+			default: nil
+			}
+		}
+		set {
+			guard let newValue else { return }
+			self = .number(Double(newValue))
+		}
+	}
+
+	var bool: Bool? {
+		get {
+			switch self {
+			case let .boolean(v): v
+			default: nil
+			}
+		}
+		set {
+			guard let newValue else { return }
+			self = .boolean(newValue)
 		}
 	}
 
@@ -133,8 +288,10 @@ public extension JSON {
 		let container = try decoder.singleValueContainer()
 		if let stringValue = try? container.decode(String.self) {
 			self = .string(stringValue)
-		} else if let intValue = try? container.decode(Int.self) {
-			self = .integer(intValue)
+		} else if let unsignedValue = try? container.decode(UInt.self) {
+			self = .integer(Int(bitPattern: unsignedValue))
+		} else if let signedValue = try? container.decode(Int.self) {
+			self = .integer(signedValue)
 		} else if let doubleValue = try? container.decode(Double.self) {
 			self = .number(doubleValue)
 		} else if let booleanValue = try? container.decode(Bool.self) {
