@@ -1,5 +1,5 @@
 //
-//  SchemaModel.swift
+//  SchemaUpdateModel.swift
 //  BevyInspector
 //
 //  Created by Christophe Bronner on 2025-10-30.
@@ -10,7 +10,7 @@ import SwiftData
 import BevyRemoteProtocol
 import OSLog
 
-@Observable final class SchemaModel {
+@Observable final class SchemaUpdateModel {
 	private(set) var isFirstFetchCompleted = false
 	private(set) var status = Status.updating
 	private(set) var failure: Error?
@@ -30,6 +30,7 @@ import OSLog
 	) {
 		let progress = Progress()
 		self.progress = progress
+		OSSignposter.app.emitEvent("SchemaModel.refresh")
 
 		progress.completedUnitCount = 0
 		progress.totalUnitCount = 0

@@ -5,7 +5,6 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
-import OpenRPC
 
 public struct Query: Codable, Hashable, LosslessStringConvertible, Sendable {
 	public init() {}
@@ -161,7 +160,7 @@ public extension QueryResult {
 	}
 }
 
-public struct QueryRow: Codable, Identifiable, EntityComponents, Sendable {
+public struct QueryRow: Codable, Equatable, Identifiable, EntityComponents, Sendable {
 	/// The ID of a query-matching entity.
 	public var entity: Entity
 	/// A map associating each type name from components/option to its value on the matching entity if the component is present.
@@ -170,8 +169,10 @@ public struct QueryRow: Codable, Identifiable, EntityComponents, Sendable {
 	/// If has was empty or omitted, this key will be omitted in the response.
 	public var has: [String: Bool] = [:]
 
-	public init(_ entity: Entity) {
+	public init(_ entity: Entity, components: [String: JSON] = [:], has: [String: Bool] = [:]) {
 		self.entity = entity
+		self.components = components
+		self.has = has
 	}
 
 	@usableFromInline init(entity: Entity) {
@@ -186,6 +187,10 @@ public struct QueryRow: Codable, Identifiable, EntityComponents, Sendable {
 
 public extension QueryRow {
 	@inlinable var id: Entity { entity }
+
+	var columns: [QueryColumn] {
+		components.keys.map(QueryColumn.init)
+	}
 
 	init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)

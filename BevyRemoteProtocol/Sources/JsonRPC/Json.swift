@@ -120,9 +120,9 @@ public extension JSON {
 		}
 	}
 
-	var u32: UInt16? {
+	var u32: UInt32? {
 		get {
-			if case let .integer(v) = self, v < Int(UInt32.max) { .init(v) } else { nil }
+			if case let .integer(v) = self { .init(v) } else { nil }
 		}
 		set {
 			guard let newValue else { return }
@@ -241,13 +241,22 @@ public extension JSON {
 		}
 	}
 
-	var array: [JSON] {
-		get throws {
-			guard case let .array(value) = self else {
-				throw DecodingError.typeMismatch([JSON].self, .init(codingPath: [], debugDescription: ""))
+	var array: [JSON]? {
+		get {
+			switch self {
+			case let .array(v): v
+			default: nil
 			}
-			return value
 		}
+		set {
+			guard let newValue else { return }
+			self = .array(newValue)
+		}
+	}
+
+	var null: Bool {
+		get { self == .null }
+		set { self = newValue ? .null : self }
 	}
 }
 

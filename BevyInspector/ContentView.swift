@@ -11,7 +11,7 @@ import BevyRemoteProtocol
 
 struct ContentView: View {
 	@State private var navigation = Navigation()
-	@State private var schema = SchemaModel()
+	@State private var schema = SchemaUpdateModel()
 
 	var body: some View {
 		NavigationView()

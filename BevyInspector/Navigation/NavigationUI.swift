@@ -14,22 +14,32 @@ struct NavigationView: View {
 		@Bindable var navigation = navigation
 		NavigationSplitView {
 			List(selection: $navigation.tab) {
-				NavigationLink("World", value: NavigationTab.world)
-				NavigationLink("Schema", value: NavigationTab.schema)
-				NavigationLink("Methods", value: NavigationTab.methods)
+				Section("World") {
+					NavigationLink("World", value: NavigationTab.world)
+					NavigationLink("Resources", value: NavigationTab.world)
+					NavigationLink("Query", value: NavigationTab.queries)
+					NavigationLink("Events", value: NavigationTab.events)
+					NavigationLink("Messages", value: NavigationTab.messages)
+				}
+				Section("Registry") {
+					NavigationLink("Schema", value: NavigationTab.schema)
+					NavigationLink("Methods", value: NavigationTab.methods)
+				}
 			}
 		} content: {
 			switch navigation.tab {
 			case .world: WorldList()
+			case .queries: QueriesList()
 			case .schema: SchemaList()
-			case .methods: Spacer()
+			default: Spacer()
 			}
 		} detail: {
 			NavigationStack(path: $navigation.path) {
 				switch navigation.tab {
-				case .world: WorldDetail(view: navigation.query)
+				case .world: WorldDetail()
+				case .queries: QueriesDetail(view: navigation.query)
 				case .schema: SchemaDetail()
-				case .methods: Spacer()
+				default: Spacer()
 				}
 			}
 		}

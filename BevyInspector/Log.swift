@@ -10,3 +10,7 @@ import OSLog
 nonisolated extension Logger {
 	static let bevy = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "bevy")
 }
+
+nonisolated extension OSSignposter {
+	static let app = OSSignposter(subsystem: Bundle.main.bundleIdentifier!, category: "app")
+}

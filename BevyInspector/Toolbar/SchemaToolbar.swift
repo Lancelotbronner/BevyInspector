@@ -13,7 +13,7 @@ import OSLog
 struct SchemaToolbar: ToolbarContent {
 	@Environment(\.modelContext) private var modelContext
 	@Environment(\.bevy) private var bevy
-	@Environment(SchemaModel.self) private var schema
+	@Environment(SchemaUpdateModel.self) private var schema
 
 	var body: some ToolbarContent {
 		ToolbarItem(placement: .status) {

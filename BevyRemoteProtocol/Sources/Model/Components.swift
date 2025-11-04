@@ -5,7 +5,6 @@
 //  Created by Christophe Bronner on 2025-10-31.
 //
 
-import OpenRPC
 
 public extension QueryColumn {
 	static let Name = QueryColumn("bevy_ecs::name::Name")
@@ -25,9 +24,13 @@ public extension EntityComponents {
 	}
 
 	var Children: [Entity]? {
-		(try? value(of: .Children)?.array ?? [])?
+		(value(of: .Children)?.array ?? [])
 			.compactMap(\.usize)
 			.map(Entity.init)
+	}
+
+	@inlinable func contains(_ column: some CustomStringConvertible) -> Bool {
+		components.keys.contains(column.description)
 	}
 
 	@inlinable func value(of column: QueryColumn) -> JSON? {

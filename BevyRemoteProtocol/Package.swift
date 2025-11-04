@@ -12,7 +12,6 @@ let package = Package(
 		.library(name: "BevyRemoteProtocol", targets: ["BevyRemoteProtocol"]),
 	],
 	targets: [
-		.target(name: "OpenRPC"),
-		.target(name: "BevyRemoteProtocol", dependencies: ["OpenRPC"]),
+		.target(name: "BevyRemoteProtocol"),
 	]
 )

@@ -5,7 +5,6 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
-import OpenRPC
 
 public struct WorldService: Sendable {
 	public let client: OpenRPCClient

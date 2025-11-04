@@ -7,7 +7,6 @@
 
 import SwiftUI
 import BevyRemoteProtocol
-import OpenRPC
 
 struct SchemaForm: View {
 	let data: BevyType

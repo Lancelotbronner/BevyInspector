@@ -7,7 +7,6 @@
 
 import SwiftData
 import BevyRemoteProtocol
-import OpenRPC
 import Foundation
 
 @ModelActor actor SchemaImporter {

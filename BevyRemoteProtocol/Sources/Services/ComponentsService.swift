@@ -5,7 +5,6 @@
 //  Created by Christophe Bronner on 2025-10-30.
 //
 
-import OpenRPC
 
 public struct ComponentsService: Sendable {
 	public let client: OpenRPCClient
@@ -13,6 +12,17 @@ public struct ComponentsService: Sendable {
 }
 
 public extension ComponentsService {
+	/// List all registered components or all components present on an entity.
+	/// - Returns: An array of fully-qualified type names of components.
+	func list() async throws -> [String] {
+		try await client.invoke(method: "world.list_components", with: List(entity: entity))
+	}
+
+	private struct List: Codable {
+		/// The ID of the entity whose components will be listed.
+		public var entity: Entity
+	}
+
 	/// Retrieve the values of one or more components from an entity.
 	/// - Parameters:
 	///   - components: An array of fully-qualified type names of components to fetch.

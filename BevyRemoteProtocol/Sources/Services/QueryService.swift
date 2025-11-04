@@ -5,7 +5,6 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
-import OpenRPC
 
 public struct QueryService: ~Copyable {
 	public let client: OpenRPCClient
@@ -28,6 +27,10 @@ public extension QueryService {
 
 	consuming func select(_ components: some Sequence<some CustomStringConvertible>) -> QueryService {
 		modify { $0.data.components.append(contentsOf: components.lazy.map(\.description)) }
+	}
+
+	consuming func select(optional components: some Sequence<some CustomStringConvertible>) -> QueryService {
+		modify { $0.data.option.append(contentsOf: components.lazy.map(\.description)) }
 	}
 
 	consuming func result() async throws -> QueryResult {

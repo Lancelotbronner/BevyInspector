@@ -1,5 +1,5 @@
 //
-//  ComponentEditorUI.swift
+//  ComponentUI.swift
 //  BevyInspector
 //
 //  Created by Christophe Bronner on 2025-10-30.
@@ -10,103 +10,53 @@ import simd
 import RealityKit
 import Spatial
 import BevyRemoteProtocol
-import OpenRPC
 import SwiftData
 import OSLog
 
-protocol ComponentUI: View {
-	associatedtype Component: Codable
-	associatedtype Header: View = EmptyView
-
-	var data: Component { get }
-	var header: Header { get }
-
-	init(data: Binding<Component>)
-
-	static var isExpandable: Bool { get }
-	static var title: Text? { get }
-
-	static func component(data: JSON) throws -> Component
-}
-
-extension ComponentUI {
-	static var isExpandable: Bool { true }
-	static var title: Text? { nil }
-
-	init(data: Binding<JSON>) {
-		self.init(data: Binding<Component> {
-			try! Self.component(data: data.wrappedValue)
-		} set: {
-			data.wrappedValue = try! JSON($0)
-		})
-	}
-
-	static func component(data: JSON) throws -> Component {
-		try data.decode()
-	}
-}
-
-extension ComponentUI where Header == EmptyView {
-	var header: Header { EmptyView() }
-}
-
 struct ComponentField: View {
-	@Query private var type: [BevyType]
-	@State private var isPresented = false
+//	@State private var isPresented = false
 	@Binding var data: JSON
-	let column: QueryColumn
+	let type: BevyType
 
-	init(_ data: Binding<JSON>, as column: QueryColumn) {
+	init(_ data: Binding<JSON>, as type: BevyType) {
 		_data = data
-		self.column = column
-		let id = column.description
-		var descriptor = FetchDescriptor<BevyType>()
-		descriptor.fetchLimit = 1
-		descriptor.predicate = #Predicate<BevyType> { $0.identifier == id }
-		_type = Query(descriptor)
+		self.type = type
 	}
 
 	var body: some View {
 		Section {
-			Group {
-				if let type = type.first {
-					SchemaValueUI(data: $data, type: type)
-				} else {
-					DefaultComponentUI(data: $data)
-				}
-			}
-			.font(.caption)
+			ValueEditor(data: $data, type: type)
 		} header: {
 			HStack(alignment: .firstTextBaseline) {
-				Text(column.name)
+				Text(type.name)
 					.monospaced()
 					.textSelection(.enabled)
-					.help(column.description)
+					.help(type.identifier)
 				Spacer()
 			}
 			.lineLimit(1)
 			.buttonStyle(.plain)
-			.sheet(isPresented: $isPresented) {
-				NavigationStack {
-					Form {
-						TextEditor(text: .constant(data.description()))
-							.monospaced()
-							.disabled(true)
-							.navigationTitle(column.description)
-							.scrollContentBackground(.hidden)
-							.frame(maxHeight: .infinity, alignment: .top)
-					}
-					.formStyle(.grouped)
-				}
-				.aspectRatio(3/2, contentMode: .fit)
-			}
-			.contextMenu {
-				Button("View as JSON", systemImage: "curlybraces.ellipsis") {
-					isPresented = true
-				}
-				//TODO: Delete
-				//TODO: Clear overrides
-			}
+//			.sheet(isPresented: $isPresented) {
+//				NavigationStack {
+//					Form {
+//						TextEditor(text: .constant(data.description()))
+//							.monospaced()
+//							.disabled(true)
+//							.navigationTitle(column.description)
+//							.scrollContentBackground(.hidden)
+//							.frame(maxHeight: .infinity, alignment: .top)
+//					}
+//					.formStyle(.grouped)
+//				}
+//				.aspectRatio(3/2, contentMode: .fit)
+//			}
+//			.contextMenu {
+//				Button("View as JSON", systemImage: "curlybraces.ellipsis") {
+//					isPresented = true
+//				}
+//				//TODO: Delete
+//				//TODO: Clear overrides
+//			}
 		}
 	}
 }
@@ -119,7 +69,7 @@ struct StructEditor: View {
 		Form {
 			ForEach(type.properties) { property in
 				LabeledContent {
-					SchemaValueUI(data: $data[property.identifier], type: property.type)
+					ValueEditor(data: $data[property.identifier], type: property.type)
 				} label: {
 					Text(property.identifier)
 						.foregroundStyle(.secondary)
@@ -134,16 +84,51 @@ struct TupleEditor: View {
 	let type: BevyType
 
 	var body: some View {
-		Form {
-			ForEach(type.elements.enumerated(), id: \.offset) { (i, type) in
-				LabeledContent {
-					SchemaValueUI(data: type.elements.count > 1 ? $data[i] : $data, type: type)
-				} label: {
-					Text(i.description)
-						.foregroundStyle(.secondary)
-						.monospaced()
+		if !type.elements.isEmpty {
+			Form {
+				if let type = type.elements.single {
+					ValueEditor(data: $data, type: type)
+				} else {
+					ForEach(type.elements.enumerated(), id: \.offset) { (i, type) in
+						LabeledContent {
+							ValueEditor(data: $data[i], type: type)
+						} label: {
+							Text(i.description)
+								.foregroundStyle(.secondary)
+								.monospaced()
+						}
+					}
 				}
 			}
+		}
+	}
+}
+
+struct ListEditor: View {
+	@Binding var data: JSON
+	let type: BevyType
+
+	var body: some View {
+		Form {
+			HStack {
+				Text("\(data.array?.count ?? 0) items")
+				Button("Add Item", systemImage: "plus.circle") {}
+					.buttonStyle(.plain)
+					.labelStyle(.iconOnly)
+			}
+			List {
+				ForEach(($data.array ?? []).enumerated(), id: \.offset) { (i, $element) in
+					LabeledContent {
+						ValueEditor(data: $element, type: type)
+					} label: {
+						Text(i.description)
+							.monospaced()
+							.foregroundStyle(.secondary)
+					}
+				}
+			}
+			.frame(minHeight: 120, alignment: .top)
+			.scrollContentBackground(.hidden)
 		}
 	}
 }
@@ -158,7 +143,6 @@ struct EnumEditor: View {
 		let variant: BevyVariant? = switch data.wrappedValue {
 		case let .string(name): type.variant(name)
 		case let .object(object): object.keys.single.flatMap(type.variant)
-		case .null: type.variant("None")
 		default: nil
 		}
 		if let variant {
@@ -171,7 +155,25 @@ struct EnumEditor: View {
 		Form {
 			VariantPicker(data: $data, selection: $selection, type: type)
 			if let selection = selection, let type = selection.type {
-				SchemaValueUI(data: $data[selection.name], type: type)
+				ValueEditor(data: $data[selection.name], type: type)
+			}
+		}
+	}
+}
+
+struct OptionEditor: View {
+	@Binding var data: JSON
+	let type: BevyType
+
+	var body: some View {
+		HStack {
+			Picker("Variant", selection: $data.null) {
+				Text("Some").tag(false)
+				Text("None").tag(true)
+			}
+			.labelsHidden()
+			if !data.null, let type = type.variant("Some")?.type {
+				ValueEditor(data: $data, type: type)
 			}
 		}
 	}
@@ -208,8 +210,8 @@ struct EntityEditor: View {
 
 	var body: some View {
 		TextField("Entity", text: $text)
+			.onSubmit(of: .text, update)
 			.focused($isFocused)
-			.onChange(of: text, update)
 			.textInputSuggestions(suggestions, id: \.entity) { row in
 				HStack(alignment: .firstTextBaseline) {
 					row.Name.map(Text.init) ?? Text(row.entity.description).foregroundStyle(.secondary)
@@ -220,7 +222,6 @@ struct EntityEditor: View {
 					}
 				}
 				.textInputCompletion(row.entity.description)
-				.font(.caption)
 			}
 			.monospaced()
 			.task {
@@ -429,5 +430,25 @@ struct TransformEditor: View {
 			.foregroundStyle(.secondary)
 		}
 		.lineLimit(1)
+	}
+}
+
+struct VideoModeEditor: View {
+	@Binding var data: VideoModeComponent
+
+	var body: some View {
+		Form {
+			LabeledContent("Resolution") {
+				HStack {
+					TextField("Width", value: $data.physical_size.x, format: .number.grouping(.never))
+					Text(verbatim: "x")
+						.foregroundStyle(.secondary)
+					TextField("Height", value: $data.physical_size.y, format: .number.grouping(.never))
+				}
+				.labelsHidden()
+			}
+			TextField("Refresh Rate", value: $data.refresh_rate_millihertz, format: .number.grouping(.never))
+			TextField("Bit Depth", value: $data.bit_depth, format: .number.grouping(.never))
+		}
 	}
 }

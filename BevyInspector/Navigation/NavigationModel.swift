@@ -13,11 +13,12 @@ import BevyRemoteProtocol
 	var detail: NavigationDetail?
 	var schema: BevyType?
 	var query = SavedQuery()
+	var entity: QueryRow?
 	var path: [NavigationDetail] = []
 }
 
 enum NavigationTab: Hashable {
-	case world, schema, methods
+	case world, resources, queries, schema, events, messages, methods
 }
 
 enum NavigationQuery: Hashable {

@@ -2,81 +2,55 @@
 //  WorldUI.swift
 //  BevyInspector
 //
-//  Created by Christophe Bronner on 2025-10-30.
+//  Created by Christophe Bronner on 2025-11-03.
 //
 
 import SwiftUI
-import SwiftData
+import OSLog
 import BevyRemoteProtocol
-import OpenRPC
 
 struct WorldList: View {
 	@Environment(\.modelContext) private var modelContext
 	@Environment(Navigation.self) private var navigation
-	@State private var newQuery = SavedQuery()
-	@State private var selection: Set<SavedQuery> = []
-	@Query<SavedQuery>(sort: [SortDescriptor(\._name)])
-	private var views: [SavedQuery]
+	@Environment(\.bevy) private var bevy
+	@State private var selection: Set<Entity> = []
+	@State private var refresh = false
+	@State private var model = QueryModel(QueryResult())
 
 	var body: some View {
-		List(selection: $selection) {
-			NavigationLink("New Query", value: newQuery)
-			if !views.isEmpty {
-				Section("Views") {
-					ForEach(views) { view in
-						TextField("Title", text: Bindable(view).name)
-							.tag(view)
-							.listRowSeparator(.hidden)
-					}
-				}
-			}
+		List(model.entities, children: \.children, selection: $selection) { entity in
+			EntityCell(row: entity.row)
+				.listRowSeparator(.hidden)
 		}
 		.monospaced()
-		.onChange(of: selection, initial: true) {
-			navigation.query = selection.single ?? newQuery
-			if selection.isEmpty {
-				selection.insert(newQuery)
-			}
-		}
-		.contextMenu(forSelectionType: SavedQuery.self) { selection in
-			Button("Delete...", systemImage: "trash") {
-				selection.forEach(modelContext.delete)
+		.onChange(of: selection.single) {
+			navigation.entity = selection.single.map {
+				model.row(of: $0)
 			}
 		}
 		.toolbar {
-			Button("Save Query", systemImage: "document.badge.plus") {
-				newQuery.query = newQuery.query
-				modelContext.insert(newQuery)
-				newQuery = SavedQuery()
+			Button("Refresh") {
+				self.refresh.toggle()
 			}
 		}
-	}
-}
-
-struct WorldDetail: View {
-	@Environment(\.bevy) private var bevy
-	@State private var selection: Set<Entity> = []
-	@State private var results = QueryModel(QueryResult())
-	@Bindable var view: SavedQuery
-
-	var body: some View {
-		VStack(alignment: .leading) {
-			QueryEditor(view: view)
-					.padding([.horizontal, .top])
-			QueryTableView(result: results, selection: $selection)
-		}
-		.monospaced()
-		.inspector(isPresented: .constant(!selection.isEmpty)) {
-			if let entity = selection.single {
-				EntityForm(model: results.model(of: entity))
+		.onAppear { refresh.toggle() }
+		.task(id: refresh) {
+			OSSignposter.app.emitEvent("WorldDetail.refresh")
+			do {
+				try await refresh()
+			} catch {
+				Logger.bevy.fault("\(error.localizedDescription)\n\(error)")
 			}
 		}
-		.task(id: view.query) { try! await refresh() }
 	}
 
 	private func refresh() async throws {
+		OSSignposter.app.emitEvent("WorldList.refresh")
 		do {
-			results = try await QueryModel(query: view.query, using: bevy)
+			let results = try await bevy.world.query()
+				.select(optional: [QueryColumn.Name, .Children, .ChildOf])
+				.result()
+			model = QueryModel(results)
 		} catch _ as CancellationError {
 			// discard
 		} catch let error as URLError {
@@ -86,5 +60,41 @@ struct WorldDetail: View {
 		} catch {
 			throw error
 		}
+	}
+}
+
+struct WorldDetail: View {
+	@Environment(\.bevy) private var bevy
+	@Environment(Navigation.self) private var navigation
+	@State private var model: QueryRow?
+
+	var body: some View {
+		VStack {
+			if let row = model ?? navigation.entity {
+				EntityForm(model: row)
+			}
+		}
+		.formStyle(.grouped)
+		.task(id: navigation.entity) {
+			if let row = navigation.entity {
+				await refresh(row.entity)
+			}
+		}
+	}
+
+	private func refresh(_ entity: Entity) async {
+		OSSignposter.app.emitEvent("WorldDetail.refresh")
+		do {
+			try await _refresh(entity)
+		} catch {
+			Logger.bevy.fault("\(error.localizedDescription)\n\(error)")
+		}
+	}
+
+	private func _refresh(_ entity: Entity) async throws {
+		let components = bevy.world.entity(entity).components
+		let names = try await components.list()
+		let result = try await components.get(names)
+		model = QueryRow(entity, components: result.components)
 	}
 }

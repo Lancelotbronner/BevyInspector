@@ -5,7 +5,6 @@
 //  Created by Christophe Bronner on 2025-10-30.
 //
 
-import OpenRPC
 
 public struct BevySchema: Codable, Sendable {
 	/// Bevy specific field, short path of the type.

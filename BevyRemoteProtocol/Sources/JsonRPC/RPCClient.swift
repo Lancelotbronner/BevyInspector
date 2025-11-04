@@ -44,6 +44,9 @@ public extension OpenRPCClient {
 		var request = request
 		request.httpBody = body
 		let (data, _) = try await session.data(for: request)
+		if let error = try? decoder.decode(ErrorResponse.self, from: data) {
+			throw error.error
+		}
 		let response = try decoder.decode(Response<Int, Result>.self, from: data)
 		return response.result
 	}
@@ -64,4 +67,13 @@ private struct Response<ID: Codable, Result: Decodable>: Decodable {
 	public var jsonrpc: String
 	public var id: ID
 	public var result: Result
+}
+
+private struct ErrorResponse: Decodable {
+	var error: Failure
+}
+
+public struct Failure: Decodable, Error, Sendable {
+	public var code: Int
+	public var message: String
 }

@@ -5,7 +5,6 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
-import OpenRPC
 
 public struct RegistryService: Sendable {
 	public let client: OpenRPCClient

@@ -5,7 +5,6 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
-import OpenRPC
 
 public typealias Entity = UInt
 

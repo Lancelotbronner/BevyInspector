@@ -7,7 +7,6 @@
 
 import SwiftUI
 import BevyRemoteProtocol
-import OpenRPC
 
 extension EnvironmentValues {
 	@Entry var bevy = BevyRemoteClient(client: OpenRPCClient())

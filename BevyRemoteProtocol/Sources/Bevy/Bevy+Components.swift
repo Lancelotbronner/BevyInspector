@@ -49,3 +49,11 @@ public struct GlobalTransformComponent: Codable, Sendable {
 		try container.encode(columns.3.z)
 	}
 }
+
+public struct VideoModeComponent: Codable, Sendable {
+	public var physical_size = SIMD2<UInt32>.zero
+	public var refresh_rate_millihertz: UInt32 = 0
+	public var bit_depth: UInt16 = 0
+
+	public init() {}
+}

@@ -17,7 +17,7 @@ struct SchemaTab: View {
 
 struct SchemaDetail: View {
 	@Environment(Navigation.self) private var navigation
-	@Environment(SchemaModel.self) private var schema
+	@Environment(SchemaUpdateModel.self) private var schema
 
 	var body: some View {
 		VStack {

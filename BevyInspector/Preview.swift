@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftData
 import BevyRemoteProtocol
-import OpenRPC
 
 struct CommonPreviewModifier: PreviewModifier {
 	struct Context {
