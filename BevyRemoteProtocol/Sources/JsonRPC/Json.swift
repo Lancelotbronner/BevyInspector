@@ -254,6 +254,19 @@ public extension JSON {
 		}
 	}
 
+	var object: [String: JSON]? {
+		get {
+			switch self {
+			case let .object(v): v
+			default: nil
+			}
+		}
+		set {
+			guard let newValue else { return }
+			self = .object(newValue)
+		}
+	}
+
 	var null: Bool {
 		get { self == .null }
 		set { self = newValue ? .null : self }

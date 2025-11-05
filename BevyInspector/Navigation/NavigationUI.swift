@@ -16,10 +16,8 @@ struct NavigationView: View {
 			List(selection: $navigation.tab) {
 				Section("World") {
 					NavigationLink("World", value: NavigationTab.world)
-					NavigationLink("Resources", value: NavigationTab.world)
 					NavigationLink("Query", value: NavigationTab.queries)
-					NavigationLink("Events", value: NavigationTab.events)
-					NavigationLink("Messages", value: NavigationTab.messages)
+					NavigationLink("Triggers", value: NavigationTab.triggers)
 				}
 				Section("Registry") {
 					NavigationLink("Schema", value: NavigationTab.schema)

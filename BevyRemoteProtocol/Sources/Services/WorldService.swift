@@ -11,6 +11,10 @@ public struct WorldService: Sendable {
 }
 
 public extension WorldService {
+	var resources: ResourcesService {
+		ResourcesService(client: client)
+	}
+
 	func query() -> QueryService {
 		QueryService(client: client)
 	}

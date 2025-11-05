@@ -42,7 +42,7 @@ import Foundation
 }
 
 extension BevyType: CustomDebugStringConvertible {
-	var debugDescription: String { identifier }
+	var debugDescription: String { "\(kind) \(name)" }
 
 	var isEmpty: Bool {
 		switch kind {
@@ -76,6 +76,10 @@ extension BevyType: CustomDebugStringConvertible {
 	var required = true
 }
 
+extension BevyProperty: CustomDebugStringConvertible {
+	var debugDescription: String { "\(identifier): \(type.name)\(required ? "" : "?")" }
+}
+
 @Model final class BevyVariant {
 	init(name: String, identifier: String?, is type: BevyType?, in parent: BevyType) {
 		self.type = type
@@ -91,6 +95,12 @@ extension BevyType: CustomDebugStringConvertible {
 	var identifier: String?
 
 	var type: BevyType?
+}
+
+extension BevyVariant: CustomDebugStringConvertible {
+	var debugDescription: String {
+		if let type { "\(name)(\(type.name))" } else { name }
+	}
 }
 
 @Model final class BevyUse {

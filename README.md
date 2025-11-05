@@ -50,6 +50,8 @@ THe UI and dataflow are ready for it, I just need to add the logic.
 
 You'll also be able to spawn/despawn entities and add/remove components.
 
+This may require crate functionality to expose the default values of a type?
+
 ### Watching Components
 
 I plan to make the app watch components and show live changes.
@@ -60,4 +62,11 @@ Highlighting changed properties would be a nice-to-have.
 I want to let you edit and send Events and Messages to your game.
 I want you to be able to create templates for commonly sent payloads and even schedule some to run automatically.
 
-A new crate will be needed to add methods for requesting registered events, messages, their types, triggering them, etc.
+This will require crate functionality to expose registered events, messages, their types, triggering them, etc.
+
+### Systems Tab
+
+I want to display the systems currently active in the current state.
+I can use the signature of the system to provide quick access to pre-filled query views.
+
+This will require crate functionality to expose app states, schedules and their systems.

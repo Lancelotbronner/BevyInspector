@@ -61,6 +61,44 @@ struct ComponentField: View {
 	}
 }
 
+struct JsonEditor: View {
+	@Binding var data: JSON
+	@State private var override: JSON?
+	@State private var description = ""
+
+	private static let encoder: JSONEncoder = {
+		let encoder = JSONEncoder()
+		encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes, .prettyPrinted]
+		return encoder
+	}()
+
+	var body: some View {
+		TextEditor(text: $description)
+			.scrollContentBackground(.hidden)
+			.monospaced()
+			.onChange(of: data, initial: true, reset)
+			.onChange(of: description) {
+				if description.isEmpty {
+					override = nil
+					return reset()
+				}
+				guard
+					let data = description.data(using: .utf8),
+					let value = try? JSONDecoder().decode(JSON.self, from: data),
+					value != self.data
+				else { return }
+				self.data = value
+				self.override = override
+			}
+	}
+
+	private func reset() {
+		guard override == nil else { return }
+		let data = (try? Self.encoder.encode(data)) ?? Data()
+		description = String(data: data, encoding: .utf8) ?? ""
+	}
+}
+
 struct StructEditor: View {
 	@Binding var data: JSON
 	let type: BevyType
@@ -140,21 +178,13 @@ struct EnumEditor: View {
 
 	init(data: Binding<JSON>, type: BevyType) {
 		_data = data
-		let variant: BevyVariant? = switch data.wrappedValue {
-		case let .string(name): type.variant(name)
-		case let .object(object): object.keys.single.flatMap(type.variant)
-		default: nil
-		}
-		if let variant {
-			_selection = State(initialValue: variant)
-		}
 		self.type = type
 	}
 
 	var body: some View {
 		Form {
 			VariantPicker(data: $data, selection: $selection, type: type)
-			if let selection = selection, let type = selection.type {
+			if let selection, let type = selection.type {
 				ValueEditor(data: $data[selection.name], type: type)
 			}
 		}
@@ -188,10 +218,25 @@ struct VariantPicker: View {
 		Picker("Variant", selection: $selection) {
 			ForEach(type.variants) { variant in
 				Text(variant.name)
-					.tag(variant)
+					.tag(variant, includeOptional: true)
+			}
+			if type.variants.isEmpty {
+				Text("Never")
+					.tag(BevyVariant?.none)
+			} else if selection == nil {
+				Text(verbatim: "-")
+					.tag(BevyVariant?.none)
 			}
 		}
 		.labelsHidden()
+		.onChange(of: data, initial: true) {
+			let variant: BevyVariant? = switch data {
+			case let .string(name): type.variant(name)
+			case let .object(object): object.keys.single.flatMap(type.variant)
+			default: nil
+			}
+			selection = variant ?? type.variants.first
+		}
 	}
 }
 

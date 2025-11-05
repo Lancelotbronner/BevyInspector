@@ -14,6 +14,7 @@ struct CommonPreviewModifier: PreviewModifier {
 		let modelContainer = ModelContainer.preview
 		let bevy = BevyRemoteClient(client: .init())
 	}
+	
 	static func makeSharedContext() throws -> Context {
 		Context()
 	}

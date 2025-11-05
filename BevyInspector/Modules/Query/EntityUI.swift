@@ -46,12 +46,12 @@ struct EntityCell: View {
 	var body: some View {
 		VStack(alignment: .leading) {
 			let name = row.Name
-			if let name {
-				Text(name)
-			}
+			name.map(Text.init) ?? Text("Unnamed").foregroundStyle(.secondary)
 			Text(row.entity, format: .number.grouping(.never))
-				.foregroundStyle(name == nil ? .secondary : .tertiary)
-				.font(name == nil ? .body : .caption)
+				.foregroundStyle(.secondary)
+				.font(.caption)
+				.monospaced()
 		}
+		.lineLimit(1, reservesSpace: true)
 	}
 }

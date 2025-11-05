@@ -52,11 +52,14 @@ struct ValueEditor: View {
 					EnumEditor(data: $data, type: type)
 				}
 			default:
-				let _ = print(type.kind, type, data.description)
+				let _ = print(type)
+				let _ = print(data.description)
 				Form {
 					LabeledContent {
-						Text(data.description)
-							.monospaced()
+						if data != .undefined {
+							Text(data.description)
+								.monospaced()
+						}
 					} label: {
 						VStack(alignment: .leading) {
 							Text(type.name)

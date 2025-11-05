@@ -1,0 +1,13 @@
+[package]
+name = "bevy_remote_inspector"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.100"
+bevy_app = "0.17.2"
+bevy_ecs = "0.17.2"
+bevy_reflect = "0.17.2"
+bevy_remote = "0.17.2"
+serde_json = "1.0.145"
+serde = { version = "1.0.228", features = ["derive"] }
