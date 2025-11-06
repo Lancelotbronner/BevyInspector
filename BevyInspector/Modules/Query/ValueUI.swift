@@ -15,36 +15,91 @@ struct ValueEditor: View {
 
 	var body: some View {
 		switch BuiltinSchema(rawValue: type.identifier) {
-		case .u8: FormattedEditor(value: $data.u8 ?? 0, format: .number)
-		case .u16: FormattedEditor(value: $data.u16 ?? 0, format: .number)
-		case .u32: FormattedEditor(value: $data.u32 ?? 0, format: .number)
-		case .u64: FormattedEditor(value: $data.u64 ?? 0, format: .number)
-		case .usize: FormattedEditor(value: $data.usize ?? 0, format: .number)
-		case .i8: FormattedEditor(value: $data.i8 ?? 0, format: .number)
-		case .i16: FormattedEditor(value: $data.i16 ?? 0, format: .number)
-		case .i32: FormattedEditor(value: $data.i32 ?? 0, format: .number)
-		case .i64: FormattedEditor(value: $data.i64 ?? 0, format: .number)
-		case .isize: FormattedEditor(value: $data.isize ?? 0, format: .number)
-		case .f32: FormattedEditor(value: $data.float ?? 0, format: .number)
-		case .f64: FormattedEditor(value: $data.double ?? 0, format: .number)
-		case .bool: Toggle("Value", isOn: $data.bool ?? false).labelsHidden()
-		case .String, .Name: TextField("Value", text: $data.string ?? "").labelsHidden()
-		case .Entity: EntityEditor(data: $data).labelsHidden()
-		case .Vec2: Vec2Editor(data: $data[SIMD2<Float>.self] ?? .zero)
-		case .Vec3, .Vec3A: Vec3Editor(data: $data[SIMD3<Float>.self] ?? .zero)
-		case .Transform: TransformEditor(data: $data[Transform.self] ?? Transform())
-		case .GlobalTransform: TransformEditor(data: ($data[GlobalTransformComponent.self] ?? .init()).rawValue.transform)
-		case .VideoMode: VideoModeEditor(data: $data[VideoModeComponent.self] ?? VideoModeComponent())
+		case .u8:
+			FormattedEditor(value: $data.u8 ?? 0, format: .number)
+		case .u16:
+			FormattedEditor(value: $data.u16 ?? 0, format: .number)
+		case .u32:
+			FormattedEditor(value: $data.u32 ?? 0, format: .number)
+		case .u64:
+			FormattedEditor(value: $data.u64 ?? 0, format: .number)
+		case .usize:
+			FormattedEditor(value: $data.usize ?? 0, format: .number)
+		case .i8:
+			FormattedEditor(value: $data.i8 ?? 0, format: .number)
+		case .i16:
+			FormattedEditor(value: $data.i16 ?? 0, format: .number)
+		case .i32:
+			FormattedEditor(value: $data.i32 ?? 0, format: .number)
+		case .i64:
+			FormattedEditor(value: $data.i64 ?? 0, format: .number)
+		case .isize:
+			FormattedEditor(value: $data.isize ?? 0, format: .number)
+		case .f32:
+			FormattedEditor(value: $data.float ?? 0, format: .number)
+		case .f64:
+			FormattedEditor(value: $data.double ?? 0, format: .number)
+		case .bool:
+			Toggle("Value", isOn: $data.bool ?? false)
+				.toggleStyle(.checkbox)
+				.labelsHidden()
+		case .String, .Name:
+			TextField("Value", text: $data.string ?? "")
+				.labelsHidden()
+		case .Entity:
+			EntityEditor(data: $data)
+				.labelsHidden()
+		case .BVec2, .BVec3, .BVec4:
+			VecField(data: $data) {
+				Toggle($1, isOn: $0.bool ?? false)
+			}
+			.toggleStyle(.checkbox)
+		case .Vec2, .Vec3, .Vec3A, .Vec4:
+			VecField(data: $data) {
+				TextField($1, value: $0.float, format: .number)
+			}
+		case .DVec2, .DVec3, .DVec4:
+			VecField(data: $data) {
+				TextField($1, value: $0.double, format: .number)
+			}
+		case .IVec2, .IVec3, .IVec4:
+			VecField(data: $data) {
+				TextField($1, value: $0.u32, format: .number)
+			}
+		case .U8Vec2, .U8Vec3, .U8Vec4:
+			VecField(data: $data) {
+				TextField($1, value: $0.u8, format: .number)
+			}
+		case .U16Vec2, .U16Vec3, .U16Vec4:
+			VecField(data: $data) {
+				TextField($1, value: $0.u16, format: .number)
+			}
+		case .UVec2, .UVec3, .UVec4:
+			VecField(data: $data) {
+				TextField($1, value: $0.u32, format: .number)
+			}
+		case .U64Vec2, .U64Vec3, .U64Vec4:
+			VecField(data: $data) {
+				TextField($1, value: $0.u64, format: .number)
+			}
+		case .Transform:
+			TransformEditor(data: $data[Transform.self] ?? Transform())
+		case .GlobalTransform:
+			TransformEditor(data: ($data[GlobalTransformComponent.self] ?? .init()).rawValue.transform)
+		case .VideoMode:
+			VideoModeEditor(data: $data[VideoModeComponent.self] ?? VideoModeComponent())
 		default:
 			switch type.kind {
 			case .Struct:
 				StructEditor(data: $data, type: type)
 			case .TupleStruct, .Tuple:
 				TupleEditor(data: $data, type: type)
-			case .List:
+			case .List, .Set:
 				if let items = type.items {
 					ListEditor(data: $data, type: items)
 				}
+			case .Map:
+				MapEditor(data: $data, type: type)
 			case .Enum:
 				if type.name.starts(with: "Option<") {
 					OptionEditor(data: $data, type: type)
@@ -80,7 +135,7 @@ public enum BuiltinSchema: String, CaseIterable {
 	case u8, u16, u32, u64, usize
 	case f32, f64
 	case bool
-	// Types
+	// Special Types
 	case String = "alloc::string::String"
 	case Entity = "bevy_ecs::entity::Entity"
 	// Vectors

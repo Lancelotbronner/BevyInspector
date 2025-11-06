@@ -8,6 +8,20 @@
 import Spatial
 import RealityKit
 
+extension SIMD2 {
+	var components: [Scalar] {
+		get { [x, y] }
+		set { (x, y) = (newValue[0], newValue[1]) }
+	}
+}
+
+extension SIMD3 {
+	var components: [Scalar] {
+		get { [x, y, z] }
+		set { (x, y, z) = (newValue[0], newValue[1], newValue[2]) }
+	}
+}
+
 extension simd_quatf {
 	var angles: SIMD3<Float> {
 		get { Rotation3DFloat(self).eulerAngles(order: .xyz).angles }

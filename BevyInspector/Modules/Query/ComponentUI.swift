@@ -14,7 +14,7 @@ import SwiftData
 import OSLog
 
 struct ComponentField: View {
-//	@State private var isPresented = false
+	//	@State private var isPresented = false
 	@Binding var data: JSON
 	let type: BevyType
 
@@ -36,27 +36,27 @@ struct ComponentField: View {
 			}
 			.lineLimit(1)
 			.buttonStyle(.plain)
-//			.sheet(isPresented: $isPresented) {
-//				NavigationStack {
-//					Form {
-//						TextEditor(text: .constant(data.description()))
-//							.monospaced()
-//							.disabled(true)
-//							.navigationTitle(column.description)
-//							.scrollContentBackground(.hidden)
-//							.frame(maxHeight: .infinity, alignment: .top)
-//					}
-//					.formStyle(.grouped)
-//				}
-//				.aspectRatio(3/2, contentMode: .fit)
-//			}
-//			.contextMenu {
-//				Button("View as JSON", systemImage: "curlybraces.ellipsis") {
-//					isPresented = true
-//				}
-//				//TODO: Delete
-//				//TODO: Clear overrides
-//			}
+			//			.sheet(isPresented: $isPresented) {
+			//				NavigationStack {
+			//					Form {
+			//						TextEditor(text: .constant(data.description()))
+			//							.monospaced()
+			//							.disabled(true)
+			//							.navigationTitle(column.description)
+			//							.scrollContentBackground(.hidden)
+			//							.frame(maxHeight: .infinity, alignment: .top)
+			//					}
+			//					.formStyle(.grouped)
+			//				}
+			//				.aspectRatio(3/2, contentMode: .fit)
+			//			}
+			//			.contextMenu {
+			//				Button("View as JSON", systemImage: "curlybraces.ellipsis") {
+			//					isPresented = true
+			//				}
+			//				//TODO: Delete
+			//				//TODO: Clear overrides
+			//			}
 		}
 	}
 }
@@ -123,10 +123,10 @@ struct TupleEditor: View {
 
 	var body: some View {
 		if !type.elements.isEmpty {
-			Form {
-				if let type = type.elements.single {
-					ValueEditor(data: $data, type: type)
-				} else {
+			if let type = type.elements.single {
+				ValueEditor(data: $data, type: type)
+			} else {
+				Form {
 					ForEach(type.elements.enumerated(), id: \.offset) { (i, type) in
 						LabeledContent {
 							ValueEditor(data: $data[i], type: type)
@@ -167,6 +167,20 @@ struct ListEditor: View {
 			}
 			.frame(minHeight: 120, alignment: .top)
 			.scrollContentBackground(.hidden)
+		}
+	}
+}
+
+struct MapEditor: View {
+	@Binding var data: JSON
+	let type: BevyType
+
+	var body: some View {
+		Form {
+			ForEach(data.object.map(Array.init) ?? [], id: \.key) { key, value in
+				LabeledContent(key, value: value.description)
+			}
+			Button("Add Key-Value Pair", systemImage: "plus.circle") {}
 		}
 	}
 }
@@ -352,66 +366,22 @@ struct FormattedEditor<F: ParseableFormatStyle>: View where F.FormatOutput == St
 	}
 }
 
-struct Vec2Editor: View {
-	@Binding var data: SIMD2<Float>
+struct VecField<Content: View>: View {
+	@Binding var data: JSON
+	@ViewBuilder var content: (Binding<JSON>, LocalizedStringKey) -> Content
 
 	var body: some View {
-		Grid {
-			GridRow {
-				Vec2Fields(data: $data)
-			}
-		}
+		Grid { GridRow { VecEditor(data: $data.array ?? [], content: content) } }
 	}
 }
 
-struct Vec2Fields: View {
-	@Binding var data: SIMD2<Float>
+struct VecEditor<Scalar, Content: View>: View {
+	@Binding var data: [Scalar]
+	@ViewBuilder var content: (Binding<Scalar>, LocalizedStringKey) -> Content
 
 	var body: some View {
-		Group {
-			TextField(value: $data.x, format: .number) {
-				Text("x")
-					.foregroundStyle(.secondary)
-			}
-			TextField(value: $data.y, format: .number) {
-				Text("y")
-					.foregroundStyle(.secondary)
-			}
-		}
-		.textFieldStyle(.roundedBorder)
-		.multilineTextAlignment(.center)
-	}
-}
-
-struct Vec3Editor: View {
-	@Binding var data: SIMD3<Float>
-
-	var body: some View {
-		Grid {
-			GridRow {
-				Vec3Fields(data: $data)
-			}
-		}
-	}
-}
-
-struct Vec3Fields: View {
-	@Binding var data: SIMD3<Float>
-
-	var body: some View {
-		Group {
-			TextField(value: $data.x, format: .number) {
-				Text("x")
-					.foregroundStyle(.secondary)
-			}
-			TextField(value: $data.y, format: .number) {
-				Text("y")
-					.foregroundStyle(.secondary)
-			}
-			TextField(value: $data.z, format: .number) {
-				Text("z")
-					.foregroundStyle(.secondary)
-			}
+		ForEach(Array(data.indices), id: \.self) { i in
+			content($data[i], ["x", "y", "z", "w"][i])
 		}
 		.textFieldStyle(.roundedBorder)
 		.multilineTextAlignment(.center)
@@ -446,7 +416,9 @@ struct TransformEditor: View {
 					.foregroundStyle(.secondary)
 					.gridColumnAlignment(.leading)
 				Spacer() //TODO: Unit field
-				Vec3Fields(data: $data.translation)
+				VecEditor(data: $data.translation.components) {
+					TextField($1, value: $0, format: .number)
+				}
 					.labelsHidden()
 					.frame(maxWidth: 55)
 			}
@@ -461,9 +433,11 @@ struct TransformEditor: View {
 				Text("Scale")
 					.foregroundStyle(.secondary)
 				Spacer() //TODO: Toggle uniform scale
-				Vec3Fields(data: $data.scale)
-					.labelsHidden()
-					.frame(maxWidth: 55)
+				VecEditor(data: $data.scale.components) {
+					TextField($1, value: $0, format: .number)
+				}
+				.labelsHidden()
+				.frame(maxWidth: 55)
 			}
 			GridRow {
 				Spacer()
