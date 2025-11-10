@@ -28,6 +28,7 @@ struct NavigationView: View {
 			switch navigation.tab {
 			case .world: WorldList()
 			case .queries: QueriesList()
+			case .triggers: TriggerList()
 			case .schema: SchemaList()
 			case .methods: MethodsList()
 			default: Spacer()

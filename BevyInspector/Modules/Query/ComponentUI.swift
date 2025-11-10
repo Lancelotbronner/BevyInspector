@@ -106,7 +106,7 @@ struct StructEditor: View {
 
 	var body: some View {
 		Form {
-			ForEach(type.properties) { property in
+			ForEach(type.properties.sorted()) { property in
 				LabeledContent {
 					ValueEditor(data: $data[property.identifier], type: property.type)
 				} label: {
@@ -280,14 +280,14 @@ struct EntityEditor: View {
 					Spacer()
 					if row.Name != nil {
 						Text(row.entity.description)
-							.foregroundStyle(.tertiary)
+							.foregroundStyle(.secondary)
 					}
 				}
 				.textInputCompletion(row.entity.description)
 			}
 			.monospaced()
 			.onChange(of: text) {
-				guard results.rows.isEmpty && suggestionsTask == nil else {
+				guard isFocused, results.rows.isEmpty && suggestionsTask == nil else {
 					return updateSuggestions()
 				}
 				suggestionsTask = Task {
@@ -333,10 +333,15 @@ struct EntityEditor: View {
 
 	private func submit() {
 		suggestions = []
+		isFocused = false
 		if let entity = Entity(text) {
 			data.u64 = entity.rawValue
+			if let row = results.row(of: entity) {
+				text = row.Name ?? text
+			}
 		} else if let row = results.row(of: text) {
 			data.u64 = row.entity.rawValue
+			text = row.Name ?? text
 		}
 	}
 }

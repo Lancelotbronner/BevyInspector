@@ -18,5 +18,5 @@ import UniformTypeIdentifiers
 }
 
 extension UTType {
-	static let project = UTType(exportedAs: "org.bevy.inspector.project", conformingTo: .package)
+	static let project = UTType(exportedAs: "org.bevy.project", conformingTo: .package)
 }

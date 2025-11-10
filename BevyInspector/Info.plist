@@ -6,14 +6,14 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Bevy Inspector Project</string>
+			<string>Bevy Project</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>org.bevy.inspector.project</string>
+				<string>org.bevy.project</string>
 			</array>
 		</dict>
 	</array>
@@ -25,16 +25,16 @@
 				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Bevy Inspector Project</string>
+			<string>Bevy Project</string>
 			<key>UTTypeIcons</key>
 			<dict/>
 			<key>UTTypeIdentifier</key>
-			<string>org.bevy.inspector.project</string>
+			<string>org.bevy.project</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>bevy_inspector_proj</string>
+					<string>bevyproj</string>
 				</array>
 			</dict>
 		</dict>

@@ -11,6 +11,7 @@ import Foundation
 
 @ModelActor actor SchemaImporter {
 	private var _types: [String: BevyType] = [:]
+	private var _reflects: [String: BevyReflect] = [:]
 
 	func `import`(
 		registry: [String: BevySchema],
@@ -33,7 +34,10 @@ import Foundation
 				currentType.name = typeSchema.shortPath ?? currentType.name
 				currentType.module = typeSchema.modulePath ?? currentType.module
 				currentType.crate = typeSchema.crateName ?? currentType.crate
-				currentType.reflect = typeSchema.reflectTypes ?? currentType.reflect
+				currentType.reflect = typeSchema.reflectTypes.map { $0.map(reflect) } ?? currentType.reflect
+				for reflect in currentType.reflect {
+					reflect.types.append(currentType)
+				}
 				modelContext.insert(currentType)
 			}
 		}
@@ -123,7 +127,19 @@ import Foundation
 			return type
 		}
 		let type = BevyType(identifier)
+		_types[identifier] = type
 		modelContext.insert(type)
 		return type
+	}
+
+	private func reflect(_ identifier: some CustomStringConvertible) -> BevyReflect {
+		let identifier = identifier.description
+		if let model = _reflects[identifier] {
+			return model
+		}
+		let model = BevyReflect(identifier)
+		_reflects[identifier] = model
+		modelContext.insert(model)
+		return model
 	}
 }

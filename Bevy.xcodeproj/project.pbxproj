@@ -12,18 +12,18 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		7338DABC2EB109B00038D094 /* BevyInspector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BevyInspector.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7338DABC2EB109B00038D094 /* Bevy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bevy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7338DACC2EB10A3C0038D094 /* BevyRemoteProtocol */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BevyRemoteProtocol; sourceTree = "<group>"; };
 		7338DBF32EB173E40038D094 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7338DBB02EB11B760038D094 /* Exceptions for "BevyInspector" folder in "BevyInspector" target */ = {
+		7338DBB02EB11B760038D094 /* Exceptions for "BevyInspector" folder in "Bevy" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 7338DABB2EB109B00038D094 /* BevyInspector */;
+			target = 7338DABB2EB109B00038D094 /* Bevy */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -31,7 +31,7 @@
 		7338DABE2EB109B00038D094 /* BevyInspector */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				7338DBB02EB11B760038D094 /* Exceptions for "BevyInspector" folder in "BevyInspector" target */,
+				7338DBB02EB11B760038D094 /* Exceptions for "BevyInspector" folder in "Bevy" target */,
 			);
 			path = BevyInspector;
 			sourceTree = "<group>";
@@ -64,7 +64,7 @@
 		7338DABD2EB109B00038D094 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7338DABC2EB109B00038D094 /* BevyInspector.app */,
+				7338DABC2EB109B00038D094 /* Bevy.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,9 +72,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7338DABB2EB109B00038D094 /* BevyInspector */ = {
+		7338DABB2EB109B00038D094 /* Bevy */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7338DAC92EB109B20038D094 /* Build configuration list for PBXNativeTarget "BevyInspector" */;
+			buildConfigurationList = 7338DAC92EB109B20038D094 /* Build configuration list for PBXNativeTarget "Bevy" */;
 			buildPhases = (
 				7338DAB82EB109B00038D094 /* Sources */,
 				7338DAB92EB109B00038D094 /* Frameworks */,
@@ -87,13 +87,13 @@
 			fileSystemSynchronizedGroups = (
 				7338DABE2EB109B00038D094 /* BevyInspector */,
 			);
-			name = BevyInspector;
+			name = Bevy;
 			packageProductDependencies = (
 				7338DACE2EB10A470038D094 /* BevyRemoteProtocol */,
 				736A3D4E2EC19E1A000F9CFA /* swift-tuple */,
 			);
 			productName = BevyInspector;
-			productReference = 7338DABC2EB109B00038D094 /* BevyInspector.app */;
+			productReference = 7338DABC2EB109B00038D094 /* Bevy.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -111,7 +111,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7338DAB72EB109B00038D094 /* Build configuration list for PBXProject "BevyInspector" */;
+			buildConfigurationList = 7338DAB72EB109B00038D094 /* Build configuration list for PBXProject "Bevy" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -129,7 +129,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7338DABB2EB109B00038D094 /* BevyInspector */,
+				7338DABB2EB109B00038D094 /* Bevy */,
 			);
 		};
 /* End PBXProject section */
@@ -295,6 +295,8 @@
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BevyInspector/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Bevy;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -310,7 +312,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lancelotbronner.BevyInspector;
+				PRODUCT_BUNDLE_IDENTIFIER = org.bevy.editor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -350,6 +352,8 @@
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BevyInspector/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Bevy;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -365,7 +369,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lancelotbronner.BevyInspector;
+				PRODUCT_BUNDLE_IDENTIFIER = org.bevy.editor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -384,7 +388,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7338DAB72EB109B00038D094 /* Build configuration list for PBXProject "BevyInspector" */ = {
+		7338DAB72EB109B00038D094 /* Build configuration list for PBXProject "Bevy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7338DAC72EB109B20038D094 /* Debug */,
@@ -393,7 +397,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7338DAC92EB109B20038D094 /* Build configuration list for PBXNativeTarget "BevyInspector" */ = {
+		7338DAC92EB109B20038D094 /* Build configuration list for PBXNativeTarget "Bevy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7338DACA2EB109B20038D094 /* Debug */,

@@ -20,7 +20,7 @@ public extension Entity {
 	var description: String { "\(row)v\(generation)" }
 
 	init(_ row: UInt32, v generation: UInt32) {
-		rawValue = UInt64(row) << 16 | UInt64(generation)
+		rawValue = UInt64(generation) << 32 | UInt64(~row)
 	}
 
 	init?(_ description: String) {

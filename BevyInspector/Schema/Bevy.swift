@@ -22,13 +22,15 @@ import Foundation
 
 	public var module: String?
 	public var crate: String?
-	public var reflect: [String]?
 
 	var name = ""
 	var kind = SchemaKind.Value
 
 	var key: BevyType?
 	var items: BevyType?
+
+	@Relationship(inverse: \BevyReflect.types)
+	public var reflect: [BevyReflect] = []
 
 	@Relationship(inverse: \BevyType.tuples)
 	var elements: [BevyType] = []
@@ -76,8 +78,12 @@ extension BevyType: CustomDebugStringConvertible {
 	var required = true
 }
 
-extension BevyProperty: CustomDebugStringConvertible {
+extension BevyProperty: Comparable, CustomDebugStringConvertible {
 	var debugDescription: String { "\(identifier): \(type.name)\(required ? "" : "?")" }
+
+	static func < (lhs: BevyProperty, rhs: BevyProperty) -> Bool {
+		lhs.identifier < rhs.identifier
+	}
 }
 
 @Model final class BevyVariant {
@@ -97,10 +103,25 @@ extension BevyProperty: CustomDebugStringConvertible {
 	var type: BevyType?
 }
 
-extension BevyVariant: CustomDebugStringConvertible {
+extension BevyVariant: Comparable, CustomDebugStringConvertible {
 	var debugDescription: String {
 		if let type { "\(name)(\(type.name))" } else { name }
 	}
+
+	static func < (lhs: BevyVariant, rhs: BevyVariant) -> Bool {
+		lhs.name < rhs.name
+	}
+}
+
+@Model final class BevyReflect {
+	init(_ identifier: String) {
+		self.identifier = identifier
+	}
+
+	@Attribute(.unique)
+	var identifier: String
+
+	var types: [BevyType] = []
 }
 
 @Model final class BevyUse {

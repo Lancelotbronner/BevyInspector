@@ -15,6 +15,7 @@ struct TypeLabel: View {
 	var body: some View {
 		Text(data.name.isEmpty ? data.identifier : data.name)
 			.help(data.identifier)
+			.textSelection(.enabled)
 			.monospaced()
 	}
 }

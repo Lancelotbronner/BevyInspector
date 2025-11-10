@@ -1,4 +1,4 @@
-# Bevy Inspector
+# Bevy Editor
 
 > # Note
 > Very WIP
@@ -20,6 +20,8 @@ This is a document app so you can keep your configuration on a per-workspace lev
 Displays the hierarchy of your world and lets you view their components fullscreen.
 Will always show all the components of the selected entity.
 
+You can also see all the resources in your world.
+
 ### Query Tab
 
 Write queries and view the resulting hierarchy in a table.
@@ -27,6 +29,10 @@ Select an entity to reveal a component inspector.
 Save your queries to the project, allowing quick access to what you care about.
 
 Currently the query format is either `*` or a comma-separated list of full component name.
+
+### Triggers Tab
+
+Trigger events in your app within the editor.
 
 ### Schema Tab
 
@@ -38,10 +44,6 @@ The schema is cached in the project document.
 It's also a database so something like *Jump to Definition* with a Rust definition snippet could easily be implemented.
 
 ## Planned Features
-
-### Resources
-
-This is my next task, populating the resources tab.
 
 ### Editing the Scene and Components
 
@@ -57,12 +59,15 @@ This may require crate functionality to expose the default values of a type?
 I plan to make the app watch components and show live changes.
 Highlighting changed properties would be a nice-to-have.
 
-### Events/Messages Tab
+### Messages
 
-I want to let you edit and send Events and Messages to your game.
+The triggers tab needs Message support added.
+This will require crate functionality to expose the reflected Message data.
+
+### Saved Triggers
+
 I want you to be able to create templates for commonly sent payloads and even schedule some to run automatically.
-
-This will require crate functionality to expose registered events, messages, their types, triggering them, etc.
+Similar to the Saved Queries feature.
 
 ### Systems Tab
 

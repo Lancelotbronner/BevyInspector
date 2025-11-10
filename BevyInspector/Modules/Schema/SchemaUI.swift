@@ -30,9 +30,9 @@ struct SchemaForm: View {
 							.monospaced()
 					}
 				}
-				if let reflect = data.reflect {
+				if !data.reflect.isEmpty {
 					LabeledContent("Reflect") {
-						Text(reflect.joined(separator: ", "))
+						Text(data.reflect.map(\.identifier).joined(separator: ", "))
 							.monospaced()
 					}
 				}
@@ -64,16 +64,16 @@ private struct SchemaKindUI: View {
 		case .Map:
 			if let key = type.key {
 				LabeledContent("Key") {
-					SchemaLabel(data: key)
+					TypeLabel(data: key)
 				}
 			}
 			if let value = type.items {
 				LabeledContent("Value") {
-					SchemaLabel(data: value)
+					TypeLabel(data: value)
 				}
 			}
 		case .Enum:
-			ForEach(type.variants) { variant in
+			ForEach(type.variants.sorted()) { variant in
 				Section {
 					HStack(alignment: .firstTextBaseline) {
 						Text(variant.name)
@@ -92,13 +92,13 @@ private struct SchemaKindUI: View {
 		case .Array, .List, .Set:
 			if let items = type.items {
 				LabeledContent("Items") {
-					SchemaLabel(data: items)
+					TypeLabel(data: items)
 				}
 			}
 		case .Tuple, .TupleStruct:
 			ForEach(type.elements.enumerated(), id: \.offset) { (i, item) in
 				LabeledContent {
-					SchemaLabel(data: item)
+					TypeLabel(data: item)
 				} label: {
 					Text(i.description)
 						.font(.headline)
@@ -115,9 +115,9 @@ private struct SchemaStruct: View {
 	let type: BevyType
 
 	var body: some View {
-		ForEach(type.properties) { property in
+		ForEach(type.properties.sorted()) { property in
 			LabeledContent {
-				SchemaLabel(data: property.type)
+				TypeLabel(data: property.type)
 			} label: {
 				HStack(alignment: .firstTextBaseline) {
 					Text(property.identifier)
@@ -126,16 +126,5 @@ private struct SchemaStruct: View {
 				}
 			}
 		}
-	}
-}
-
-struct SchemaLabel: View {
-	let data: BevyType
-
-	var body: some View {
-		Text(data.name)
-			.help(data.identifier)
-			.textSelection(.enabled)
-			.monospaced()
 	}
 }

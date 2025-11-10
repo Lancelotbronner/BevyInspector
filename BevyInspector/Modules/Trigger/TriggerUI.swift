@@ -10,58 +10,80 @@ import SwiftData
 import BevyRemoteProtocol
 
 @Observable final class TriggerModel {
-	var type: BevyType?
 	var data = JSON.undefined
+	var failure: Error?
 }
 
 struct TriggerList: View {
-	var body: some View {
+	@Environment(Navigation.self) private var navigation
+	@Query(
+		filter: #Predicate<BevyType> { $0.reflect.contains { $0.identifier == "Event" } },
+		sort: \.name)
+	private var events: [BevyType]
+	@Query private var reflects: [BevyReflect]
 
+	var body: some View {
+		List(events, selection: Bindable(navigation).event) {
+			TypeLabel(data: $0)
+				.tag($0)
+				.listRowSeparator(.hidden)
+		}
 	}
 }
 
 struct TriggerDetail: View {
+	@Environment(Navigation.self) private var navigation
 	@Environment(\.bevy) private var bevy
-	@State private var failure: Error?
 	@State private var model = TriggerModel()
 
 	var body: some View {
-		@Bindable var model = model
-		Form {
-			Section {
-				TypeField(type: $model.type) {
-					Text("Event")
-				}
-				LabeledContent("Payload") {
-					Text(model.data.description())
-						.monospaced()
-				}
-				if let failure {
-					LabeledContent("Failure") {
-						Text(verbatim: "\(failure)")
-							.foregroundStyle(.red)
-					}
-				}
-			}
-			if let type = model.type {
-				ValueEditor(data: $model.data, type: type)
+		VStack(alignment: .leading) {
+			if let type = navigation.event {
+				EventForm(model: model, type: type)
 			}
 		}
 		.formStyle(.grouped)
 		.toolbar {
 			Button("Send", systemImage: "arrow.up") {
-				guard let type = model.type else { return }
+				guard let type = navigation.event else { return }
 				Task {
 					do {
 						try await bevy.inspector.trigger(type.identifier, payload: model.data)
-						failure = nil
+						model.failure = nil
 					} catch {
-						failure = error
+						model.failure = error
 					}
 				}
 			}
 			.tint(.accentColor)
-			.disabled(model.type == nil)
+			.disabled(navigation.event == nil)
+		}
+	}
+}
+
+private struct EventForm: View {
+	@Bindable var model: TriggerModel
+	let type: BevyType
+
+	var body: some View {
+		Form {
+			Section {
+				LabeledContent("Payload") {
+					Text(model.data.description)
+						.monospaced()
+				}
+				if let failure = model.failure {
+					LabeledContent("Failure") {
+						Text(verbatim: "\(failure)")
+							.foregroundStyle(.red)
+					}
+				}
+			} header: {
+				TypeLabel(data: type)
+			}
+			Section("Parameters") {
+				ValueEditor(data: $model.data, type: type)
+			}
 		}
 	}
 }

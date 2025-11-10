@@ -22,6 +22,7 @@ extension Array<PersistentModel.Type> {
 		SavedQuery.self,
 		BevyType.self,
 		BevyProperty.self,
+		BevyReflect.self,
 		BevyUse.self,
 	]
 
