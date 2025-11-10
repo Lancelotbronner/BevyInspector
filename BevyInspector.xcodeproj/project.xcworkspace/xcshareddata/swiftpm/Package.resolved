@@ -1,0 +1,15 @@
+{
+  "originHash" : "45cef83f3b4dcb6dc0620c928e55758a27fed63bbe02b28417fe6f31846fb2d8",
+  "pins" : [
+    {
+      "identity" : "swift-tuple",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Lancelotbronner/swift-tuple",
+      "state" : {
+        "revision" : "633bc9083abfae696ffdc4f0a6d428ddab0c73db",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}

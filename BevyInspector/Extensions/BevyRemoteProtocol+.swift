@@ -38,3 +38,28 @@ nonisolated extension SchemaKind {
 		}
 	}
 }
+
+nonisolated struct InspectorService: Sendable {
+	public let client: OpenRPCClient
+}
+
+nonisolated extension BevyRemoteClient {
+	var inspector: InspectorService {
+		InspectorService(client: client)
+	}
+}
+
+nonisolated extension InspectorService {
+	func trigger(_ event: String, payload: some Codable) async throws {
+		_ = try await client.invoke(method: "inspector.trigger_event", with: Trigger(event: event, payload: payload), as: Empty?.self)
+	}
+
+	func trigger(_ event: String) async throws {
+		try await trigger(event, payload: Optional<Empty>.none)
+	}
+
+	private struct Trigger<Payload: Codable>: Codable {
+		public var event: String
+		public var payload: Payload
+	}
+}

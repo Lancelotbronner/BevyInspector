@@ -33,7 +33,8 @@ public extension JSON {
 			case var .object(object):
 				object[key] = newValue
 				self = .object(object)
-			default: break
+			default:
+				self = .object([key: newValue])
 			}
 		}
 	}
@@ -57,7 +58,8 @@ public extension JSON {
 					v.append(newValue)
 				}
 				self = .array(v)
-			default: break
+			default:
+				self = .array([newValue])
 			}
 		}
 	}

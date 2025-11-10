@@ -103,10 +103,10 @@ struct WorldDetail: View {
 
 	var body: some View {
 		VStack {
-			if let row = model ?? navigation.entity {
-				EntityForm(model: row)
-			} else if let name = navigation.resource {
+			if let name = navigation.resource {
 				ResourceForm(data: $resource ?? .undefined, name: name)
+			} else if let row = model ?? navigation.entity {
+				EntityForm(model: row)
 			}
 		}
 		.formStyle(.grouped)

@@ -18,7 +18,7 @@ struct EntityForm: View {
 		Form {
 			Section("Entity") {
 				LabeledContent("ID") {
-					Text(model.id, format: .number.grouping(.never))
+					Text(model.id.description)
 						.monospaced()
 				}
 				LabeledContent("Name", value: model.Name ?? "")
@@ -27,7 +27,7 @@ struct EntityForm: View {
 				ProgressView(progress)
 			}
 			ForEach(model.columns) { column in
-				if let type = types.first(where: {$0.identifier == column.description }), let data = model.value(of: column) {
+				if let type = types.first(where: { $0.identifier == column.description }), let data = model.value(of: column) {
 					ComponentField(.constant(data), as: type)
 				} else {
 					Text(column.description)
@@ -47,7 +47,7 @@ struct EntityCell: View {
 		VStack(alignment: .leading) {
 			let name = row.Name
 			name.map(Text.init) ?? Text("Unnamed").foregroundStyle(.secondary)
-			Text(row.entity, format: .number.grouping(.never))
+			Text(row.entity.description)
 				.foregroundStyle(.secondary)
 				.font(.caption)
 				.monospaced()

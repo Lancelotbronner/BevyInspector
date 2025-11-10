@@ -126,7 +126,7 @@ struct QueryTableView: View {
 				if let name = model.row.Name {
 					Text(name)
 				} else {
-					Text(model.row.entity, format: .number.grouping(.never))
+					Text(model.row.entity.description)
 						.foregroundStyle(.secondary)
 				}
 			}

@@ -23,12 +23,14 @@ public struct Specification: Codable {
 		public var url: String
 	}
 
-	public struct Method: Codable {
+	public struct Method: Codable, Hashable, Identifiable, Sendable {
 		public var name: String
 		public var params: [Parameter]
+
+		public var id: String { name }
 	}
 
-	public struct Parameter: Codable {
+	public struct Parameter: Codable, Hashable, Sendable {
 
 	}
 

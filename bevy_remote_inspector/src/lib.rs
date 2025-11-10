@@ -1,15 +1,58 @@
-use anyhow::{anyhow, Result as AnyhowResult};
-use bevy_ecs::event::EventKey;
 use bevy_ecs::prelude::*;
-use bevy_reflect::{TypeRegistration, TypeRegistry};
+use bevy_ecs::reflect::from_reflect_with_fallback;
+use bevy_reflect::erased_serde::__private::serde::de::IntoDeserializer;
+use bevy_reflect::serde::TypedReflectDeserializer;
+use bevy_reflect::{
+    DynamicStruct, FromType, PartialReflect, Reflect, TypePath, TypeRegistry,
+};
 use bevy_remote::{error_codes, BrpError, BrpResult};
-use bevy_remote::builtin_methods::{BrpGetComponentsParams, BrpGetComponentsResponse};
-use serde_json::Value;
+use serde::de::DeserializeSeed;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+/*
+use bevy_remote_inspector::ReflectEvent;
+
+#[derive(Event, Reflect)]
+#[reflect(Event)]
+struct MyEvent;
+
+use bevy_remote_inspector::InspectorMethod;
+
+RemotePlugin::default().with_method(
+    InspectorMethod::TriggerEvent,
+    InspectorMethod::TriggerEvent.handler(),
+),
+ */
+
+#[derive(Clone)]
+pub struct ReflectEvent {
+    trigger: fn(&mut World, &dyn PartialReflect, &TypeRegistry),
+}
+
+impl ReflectEvent {
+    pub fn trigger(&self, world: &mut World, event: &dyn PartialReflect, registry: &TypeRegistry) {
+        (self.trigger)(world, event, registry)
+    }
+}
+
+impl<'a, E: Reflect + Event + TypePath> FromType<E> for ReflectEvent
+where
+    <E as Event>::Trigger<'a>: Default,
+{
+    fn from_type() -> Self {
+        ReflectEvent {
+            trigger: |world, reflected_event, registry| {
+                let event = from_reflect_with_fallback::<E>(reflected_event, world, registry);
+                world.trigger(event);
+            },
+        }
+    }
+}
 
 #[derive(Copy, Clone)]
 pub enum InspectorMethod {
-    TriggerEvent
+    TriggerEvent,
 }
 
 impl InspectorMethod {
@@ -37,24 +80,32 @@ struct BrpTriggerEventParams {
 fn trigger_event(In(params): In<Option<Value>>, world: &mut World) -> BrpResult {
     let BrpTriggerEventParams { event, payload } = parse_some(params)?;
 
-    let app_type_registry = world.resource::<AppTypeRegistry>();
-    let type_registry = *app_type_registry.read();
-    let event_key = format!("bevy_ecs::event::EventWrapperComponent<{event}>");
-    let registration = get_component_type_registration(&type_registry, &event_key[..]);
+    world.resource_scope(|world, registry: Mut<AppTypeRegistry>| {
+        let registry = registry.read();
 
-    let response =
-        reflect_components_to_response(components, strict, entity, entity_ref, &type_registry)?;
-    serde_json::to_value(response).map_err(BrpError::internal)
+        let registration = registry.get_with_type_path(&event).unwrap();
+        // .ok_or_else(|| /* Error handling (event not registered) */)?
+        let reflect_event = registration
+            .data::<ReflectEvent>()
+            // .ok_or_else(|| /* Error handling (typedata ReflectEvent not registered) */)?
+            .unwrap();
+
+        if let Some(payload) = payload {
+            let payload: Box<dyn PartialReflect> =
+                TypedReflectDeserializer::new(registration, &registry)
+                    .deserialize(payload.into_deserializer())
+                    .unwrap();
+            reflect_event.trigger(world, &*payload, &registry);
+        } else {
+            let payload = DynamicStruct::default();
+            reflect_event.trigger(world, &payload, &registry);
+        }
+
+        Ok(Value::Null)
+    })
 }
 
-fn get_component_type_registration<'r>(
-    type_registry: &'r TypeRegistry,
-    component_path: &str,
-) -> AnyhowResult<&'r TypeRegistration> {
-    type_registry
-        .get_with_type_path(component_path)
-        .ok_or_else(|| anyhow!("Unknown component type: `{}`", component_path))
-}
+//FIXME: These are ripped off the bevy_remote codebase
 
 /// A helper function used to parse a `serde_json::Value`.
 fn parse<T: for<'de> Deserialize<'de>>(value: Value) -> std::result::Result<T, BrpError> {
@@ -66,7 +117,9 @@ fn parse<T: for<'de> Deserialize<'de>>(value: Value) -> std::result::Result<T, B
 }
 
 /// A helper function used to parse a `serde_json::Value` wrapped in an `Option`.
-fn parse_some<T: for<'de> Deserialize<'de>>(value: Option<Value>) -> std::result::Result<T, BrpError> {
+fn parse_some<T: for<'de> Deserialize<'de>>(
+    value: Option<Value>,
+) -> std::result::Result<T, BrpError> {
     match value {
         Some(value) => parse(value),
         None => Err(BrpError {

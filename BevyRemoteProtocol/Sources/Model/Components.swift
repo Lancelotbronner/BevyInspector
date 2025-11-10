@@ -20,12 +20,12 @@ public extension EntityComponents {
 	}
 
 	var ChildOf: Entity? {
-		value(of: .ChildOf)?.usize
+		value(of: .ChildOf)?.u64.map(Entity.init)
 	}
 
 	var Children: [Entity]? {
 		(value(of: .Children)?.array ?? [])
-			.compactMap(\.usize)
+			.compactMap(\.u64)
 			.map(Entity.init)
 	}
 

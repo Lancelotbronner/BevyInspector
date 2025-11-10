@@ -454,8 +454,6 @@ dependencies = [
 name = "bevy_remote_inspector"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "bevy_app",
  "bevy_ecs",
  "bevy_reflect",
  "bevy_remote",

@@ -33,6 +33,7 @@ import Foundation
 				currentType.name = typeSchema.shortPath ?? currentType.name
 				currentType.module = typeSchema.modulePath ?? currentType.module
 				currentType.crate = typeSchema.crateName ?? currentType.crate
+				currentType.reflect = typeSchema.reflectTypes ?? currentType.reflect
 				modelContext.insert(currentType)
 			}
 		}

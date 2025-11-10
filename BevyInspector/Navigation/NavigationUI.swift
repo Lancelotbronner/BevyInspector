@@ -29,6 +29,7 @@ struct NavigationView: View {
 			case .world: WorldList()
 			case .queries: QueriesList()
 			case .schema: SchemaList()
+			case .methods: MethodsList()
 			default: Spacer()
 			}
 		} detail: {
@@ -36,7 +37,9 @@ struct NavigationView: View {
 				switch navigation.tab {
 				case .world: WorldDetail()
 				case .queries: QueriesDetail(view: navigation.query)
+				case .triggers: TriggerDetail()
 				case .schema: SchemaDetail()
+				case .methods: MethodsDetail()
 				default: Spacer()
 				}
 			}

@@ -15,6 +15,7 @@ import BevyRemoteProtocol
 	var query = SavedQuery()
 	var entity: QueryRow?
 	var resource: String?
+	var method: Specification.Method?
 	var path: [NavigationDetail] = []
 }
 

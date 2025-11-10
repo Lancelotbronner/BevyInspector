@@ -12,6 +12,7 @@ import Spatial
 import BevyRemoteProtocol
 import SwiftData
 import OSLog
+import Tuple
 
 struct ComponentField: View {
 	//	@State private var isPresented = false
@@ -260,6 +261,8 @@ struct EntityEditor: View {
 	@State private var text: String
 	@State private var suggestions: [QueryRow] = []
 	@State private var results = QueryResult()
+	@State private var suggestionsTask: Task<Void, Never>?
+	@State private var nameTask: Task<Void, Never>?
 	@FocusState private var isFocused
 
 	init(data: Binding<JSON>) {
@@ -269,7 +272,7 @@ struct EntityEditor: View {
 
 	var body: some View {
 		TextField("Entity", text: $text)
-			.onSubmit(of: .text, update)
+			.onSubmit(of: .text, submit)
 			.focused($isFocused)
 			.textInputSuggestions(suggestions, id: \.entity) { row in
 				HStack(alignment: .firstTextBaseline) {
@@ -283,52 +286,57 @@ struct EntityEditor: View {
 				.textInputCompletion(row.entity.description)
 			}
 			.monospaced()
-			.task {
-				guard let entity = data.usize else { return }
-				do {
-					let components = try await bevy.world
-						.entity(entity).components
-						.get([QueryColumn.Name])
-					if let name = components.Name {
-						text = name
+			.onChange(of: text) {
+				guard results.rows.isEmpty && suggestionsTask == nil else {
+					return updateSuggestions()
+				}
+				suggestionsTask = Task {
+					do {
+						results = try await bevy.world.query()
+							.select([QueryColumn.Name])
+							.with([QueryColumn.Name])
+							.result()
+						updateSuggestions()
+					} catch {
+						Logger.bevy.fault("\(error.localizedDescription)\n\(error)")
 					}
-				} catch {
-					Logger.bevy.fault("\(error.localizedDescription)\n\(error)")
+					suggestionsTask = nil
 				}
 			}
-			.task(id: isFocused) {
-				guard isFocused else {
-					suggestions = []
+			.onChange(of: data.u64, initial: true) {
+				guard !isFocused, let entity = data.u64.map(Entity.init) else { return }
+				if let name = results.row(of: entity)?.Name {
+					text = name
 					return
 				}
-
-				do {
-					results = try await bevy.world.query()
-						.select([QueryColumn.Name])
-						.with([QueryColumn.Name])
-						.result()
-					suggestions = getSuggestions()
-				} catch {
-					Logger.bevy.fault("\(error.localizedDescription)\n\(error)")
+				nameTask = Task {
+					do {
+						let components = try await bevy.world
+							.entity(entity).components
+							.get([QueryColumn.Name])
+						if let name = components.Name {
+							text = name
+						}
+					} catch {
+						Logger.bevy.fault("\(error.localizedDescription)\n\(error)")
+					}
+					nameTask = nil
 				}
 			}
 	}
 
-	private func getSuggestions() -> [QueryRow] {
-		Array(results.rows.lazy.filter {
+	private func updateSuggestions() {
+		suggestions = Array(results.rows.lazy.filter {
 			($0.Name?.localizedStandardContains(text) ?? false)
-			|| $0.entity.description.localizedStandardContains(text)
 		}.prefix(10))
 	}
 
-	private func update() {
-		if let id = BevyRemoteProtocol.Entity(text) {
-			data.usize = id
-			if let name = results.row(of: id).flatMap(\.Name) {
-				text = name
-			}
+	private func submit() {
+		suggestions = []
+		if let entity = Entity(text) {
+			data.u64 = entity.rawValue
 		} else if let row = results.row(of: text) {
-			data.usize = row.entity
+			data.u64 = row.entity.rawValue
 		}
 	}
 }
@@ -349,7 +357,7 @@ struct EntityFormat: ParseableFormatStyle {
 		let results: BevyRemoteProtocol.QueryResult
 
 		func parse(_ value: String) throws -> FormatInput {
-			UInt(value) ?? results.rows.first {
+			Entity(value) ?? results.rows.first {
 				$0.Name == value
 			}?.entity
 		}

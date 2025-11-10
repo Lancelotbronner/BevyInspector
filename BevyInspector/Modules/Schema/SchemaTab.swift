@@ -44,6 +44,7 @@ struct SchemaList: View {
 	var body: some View {
 		List(selection: Bindable(navigation).schema) {
 			ForEachBevyType(search)
+				.listRowSeparator(.hidden)
 		}
 		.frame(minWidth: 300)
 		.searchable(text: $search)

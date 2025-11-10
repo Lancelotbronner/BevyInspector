@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7338DACF2EB10A470038D094 /* BevyRemoteProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = 7338DACE2EB10A470038D094 /* BevyRemoteProtocol */; };
+		736A3D4F2EC19E1A000F9CFA /* swift-tuple in Frameworks */ = {isa = PBXBuildFile; productRef = 736A3D4E2EC19E1A000F9CFA /* swift-tuple */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7338DACF2EB10A470038D094 /* BevyRemoteProtocol in Frameworks */,
+				736A3D4F2EC19E1A000F9CFA /* swift-tuple in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +90,7 @@
 			name = BevyInspector;
 			packageProductDependencies = (
 				7338DACE2EB10A470038D094 /* BevyRemoteProtocol */,
+				736A3D4E2EC19E1A000F9CFA /* swift-tuple */,
 			);
 			productName = BevyInspector;
 			productReference = 7338DABC2EB109B00038D094 /* BevyInspector.app */;
@@ -119,6 +122,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				7338DACD2EB10A470038D094 /* XCLocalSwiftPackageReference "BevyRemoteProtocol" */,
+				736A3D4D2EC19E1A000F9CFA /* XCRemoteSwiftPackageReference "swift-tuple" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7338DABD2EB109B00038D094 /* Products */;
@@ -407,10 +411,26 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		736A3D4D2EC19E1A000F9CFA /* XCRemoteSwiftPackageReference "swift-tuple" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Lancelotbronner/swift-tuple";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		7338DACE2EB10A470038D094 /* BevyRemoteProtocol */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BevyRemoteProtocol;
+		};
+		736A3D4E2EC19E1A000F9CFA /* swift-tuple */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 736A3D4D2EC19E1A000F9CFA /* XCRemoteSwiftPackageReference "swift-tuple" */;
+			productName = "swift-tuple";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
