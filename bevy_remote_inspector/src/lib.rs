@@ -2,9 +2,8 @@ use bevy_ecs::prelude::*;
 use bevy_ecs::reflect::from_reflect_with_fallback;
 use bevy_reflect::erased_serde::__private::serde::de::IntoDeserializer;
 use bevy_reflect::serde::TypedReflectDeserializer;
-use bevy_reflect::{
-    DynamicStruct, FromType, PartialReflect, Reflect, TypePath, TypeRegistry,
-};
+use bevy_reflect::{DynamicStruct, FromType, PartialReflect, Reflect, TypePath, TypeRegistry};
+use bevy_remote::schemas::SchemaTypesMetadata;
 use bevy_remote::{error_codes, BrpError, BrpResult};
 use serde::de::DeserializeSeed;
 use serde::{Deserialize, Serialize};
@@ -17,13 +16,19 @@ use bevy_remote_inspector::ReflectEvent;
 #[reflect(Event)]
 struct MyEvent;
 
-use bevy_remote_inspector::InspectorMethod;
+use bevy_remote_inspector::{InspectorMethod, setup_inspector};
 
 RemotePlugin::default().with_method(
     InspectorMethod::TriggerEvent,
     InspectorMethod::TriggerEvent.handler(),
 ),
+
+.add_systems(Startup, setup_inspector)
  */
+
+pub fn setup_inspector(mut schema: ResMut<SchemaTypesMetadata>) {
+    schema.map_type_data::<ReflectEvent>("Event");
+}
 
 #[derive(Clone)]
 pub struct ReflectEvent {
@@ -83,18 +88,22 @@ fn trigger_event(In(params): In<Option<Value>>, world: &mut World) -> BrpResult 
     world.resource_scope(|world, registry: Mut<AppTypeRegistry>| {
         let registry = registry.read();
 
-        let registration = registry.get_with_type_path(&event).unwrap();
-        // .ok_or_else(|| /* Error handling (event not registered) */)?
-        let reflect_event = registration
-            .data::<ReflectEvent>()
-            // .ok_or_else(|| /* Error handling (typedata ReflectEvent not registered) */)?
-            .unwrap();
+        let Some(registration) = registry.get_with_type_path(&event) else {
+            return Err(BrpError::resource_error(format!(
+                "Unknown event type: `{event}`"
+            )));
+        };
+        let Some(reflect_event) = registration.data::<ReflectEvent>() else {
+            return Err(BrpError::resource_error(format!(
+                "Event `{event}` is not reflectable"
+            )));
+        };
 
         if let Some(payload) = payload {
             let payload: Box<dyn PartialReflect> =
                 TypedReflectDeserializer::new(registration, &registry)
                     .deserialize(payload.into_deserializer())
-                    .unwrap();
+                    .map_err(|err| BrpError::resource_error(format!("{event} is invalid: {err}")))?;
             reflect_event.trigger(world, &*payload, &registry);
         } else {
             let payload = DynamicStruct::default();
