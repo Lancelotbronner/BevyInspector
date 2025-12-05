@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Lancelotbronner/swift-tuple",
       "state" : {
-        "revision" : "633bc9083abfae696ffdc4f0a6d428ddab0c73db",
-        "version" : "1.0.0"
+        "revision" : "bde5b0adad34997c5444085798ff058f00c47fe2",
+        "version" : "1.0.1"
       }
     }
   ],

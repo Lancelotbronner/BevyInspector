@@ -68,7 +68,7 @@ struct QueriesDetail: View {
 		.monospaced()
 		.inspector(isPresented: .constant(!selection.isEmpty)) {
 			if let entity = selection.single {
-				EntityForm(model: results.row(of: entity))
+				EntityForm(row: results.row(of: entity))
 					.font(.caption)
 			}
 		}

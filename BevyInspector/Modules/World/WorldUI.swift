@@ -106,7 +106,7 @@ struct WorldDetail: View {
 			if let name = navigation.resource {
 				ResourceForm(data: $resource ?? .undefined, name: name)
 			} else if let row = model ?? navigation.entity {
-				EntityForm(model: row)
+				EntityForm(row: row)
 			}
 		}
 		.formStyle(.grouped)
@@ -140,5 +140,13 @@ struct WorldDetail: View {
 	private func refreshResource(_ name: String) async throws {
 		let value = try await bevy.world.resources.get(name)
 		resource = value
+	}
+}
+
+@Observable final class ObservableQueryRow {
+	var row: QueryRow
+
+	init(row: QueryRow) {
+		self.row = row
 	}
 }

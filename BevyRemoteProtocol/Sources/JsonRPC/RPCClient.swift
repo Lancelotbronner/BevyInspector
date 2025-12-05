@@ -39,7 +39,11 @@ public final class OpenRPCClient: Sendable {
 }
 
 public extension OpenRPCClient {
-	func invoke<Parameters: Encodable, Result: Decodable>(method: String, with params: Parameters, as _: Result.Type = Result.self) async throws -> Result {
+	func invoke<Parameters: Encodable, Result: Decodable>(
+		method: String,
+		with params: Parameters,
+		as _: Result.Type = Result.self
+	) async throws -> Result {
 		let body = try encoder.encode(Request(method: method, id: 0, params: params))
 		var request = request
 		request.httpBody = body
@@ -50,9 +54,59 @@ public extension OpenRPCClient {
 		let response = try decoder.decode(Response<Int, Result>.self, from: data)
 		return response.result
 	}
+
+	func stream<Parameters: Encodable, Event: Decodable & Sendable>(
+		method: String,
+		with params: Parameters,
+		as _: Event.Type = Event.self
+	) async throws -> AsyncThrowingStream<Event, Error> {
+		let body = try encoder.encode(Request(method: method, id: 0, params: params))
+		var request = request
+		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		request.setValue("text/event-stream; charset=utf-8", forHTTPHeaderField: "Accept")
+		request.setValue("keep-alive", forHTTPHeaderField: "Connection")
+		request.httpBody = body
+
+		let (asyncBytes, response) = try await URLSession.shared.bytes(for: request)
+		try Task.checkCancellation()
+
+		guard
+			let httpResponse = response as? HTTPURLResponse,
+			(200...299).contains(httpResponse.statusCode)
+		else { throw Failure(code: 0, message: "HTTP failed") }
+
+		return AsyncThrowingStream(Event.self, bufferingPolicy: .bufferingNewest(3)) { continuation in
+			let task = Task {
+				for try await line in asyncBytes.lines {
+					try Task.checkCancellation()
+
+					guard line.hasPrefix("data: "),
+						  let data = line.dropFirst(6).data(using: .utf8)
+					else {
+						// Seems like we got a partial event or one that doesn't start with
+						// `data: `. No big deal. Just continue to the next event in the stream.
+						continue
+					}
+
+					do {
+						let response = try JSONDecoder().decode(Response<Int, Event>.self, from: data)
+						continuation.yield(with: .success(response.result))
+					} catch {
+						continuation.finish(throwing: error)
+					}
+				}
+
+				continuation.finish()
+			}
+
+			continuation.onTermination = { [task] _ in
+				task.cancel()
+			}
+		}
+	}
 }
 
-public struct Empty: Codable {
+public struct Empty: Codable, Sendable {
 	public init() {}
 }
 

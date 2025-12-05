@@ -11,8 +11,18 @@ import BevyRemoteProtocol
 
 struct EntityForm: View {
 	@Environment(SchemaUpdateModel.self) private var schema
+	@Environment(\.bevy) private var bevy
 	@Query private var types: [BevyType]
-	let model: QueryRow
+	let _model: ObservableQueryRow
+
+	init(row: QueryRow) {
+		_model = ObservableQueryRow(row: row)
+	}
+
+	private var model: QueryRow {
+		_read { yield _model.row }
+		nonmutating _modify { yield &_model.row }
+	}
 
 	var body: some View {
 		Form {
@@ -37,6 +47,24 @@ struct EntityForm: View {
 			}
 		}
 //		.formStyle(InspectorFormStyle())
+		.task(id: model.id) {
+			do {
+				for try await event in try await bevy.world.entity(model.entity).components.watch(model.columns.lazy.map(\.description)) {
+					withAnimation {
+						for (component, newValue) in event.components {
+							model.components[component] = newValue
+						}
+						for removed in event.removed {
+							model.components[removed] = nil
+						}
+					}
+				}
+			} catch let error as CancellationError {
+				// ignore
+			} catch {
+				print(error)
+			}
+		}
 	}
 }
 

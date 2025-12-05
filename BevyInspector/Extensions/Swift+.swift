@@ -28,3 +28,16 @@ nonisolated extension Array {
 		isEmpty ? nil : self
 	}
 }
+
+nonisolated extension Set {
+	subscript(element: Element) -> Bool {
+		get { contains(element) }
+		set {
+			if newValue {
+				insert(element)
+			} else {
+				remove(element)
+			}
+		}
+	}
+}
