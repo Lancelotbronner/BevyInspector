@@ -8,13 +8,40 @@
 
 /* Begin PBXBuildFile section */
 		7338DACF2EB10A470038D094 /* BevyRemoteProtocol in Frameworks */ = {isa = PBXBuildFile; productRef = 7338DACE2EB10A470038D094 /* BevyRemoteProtocol */; };
+		733AFF692F4E151700EE994B /* Host.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 733AFF602F4E151700EE994B /* Host.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		733AFF752F4E166E00EE994B /* BevyKit in Frameworks */ = {isa = PBXBuildFile; productRef = 733AFF742F4E166E00EE994B /* BevyKit */; };
 		736A3D4F2EC19E1A000F9CFA /* swift-tuple in Frameworks */ = {isa = PBXBuildFile; productRef = 736A3D4E2EC19E1A000F9CFA /* swift-tuple */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		733AFF672F4E151700EE994B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7338DAB42EB109B00038D094 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 733AFF5F2F4E151700EE994B;
+			remoteInfo = Host;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		732E82E92F4DF98100F1FD39 /* Embed XPC Services */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
+			dstSubfolderSpec = 16;
+			files = (
+				733AFF692F4E151700EE994B /* Host.xpc in Embed XPC Services */,
+			);
+			name = "Embed XPC Services";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		7338DABC2EB109B00038D094 /* Bevy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bevy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7338DACC2EB10A3C0038D094 /* BevyRemoteProtocol */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BevyRemoteProtocol; sourceTree = "<group>"; };
 		7338DBF32EB173E40038D094 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = README.md; sourceTree = "<group>"; };
+		733AFF602F4E151700EE994B /* Host.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = Host.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -25,6 +52,13 @@
 			);
 			target = 7338DABB2EB109B00038D094 /* Bevy */;
 		};
+		733AFF732F4E15D000EE994B /* Exceptions for "BevyInspector" folder in "Host" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppIcon.icon,
+			);
+			target = 733AFF5F2F4E151700EE994B /* Host */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,8 +66,14 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				7338DBB02EB11B760038D094 /* Exceptions for "BevyInspector" folder in "Bevy" target */,
+				733AFF732F4E15D000EE994B /* Exceptions for "BevyInspector" folder in "Host" target */,
 			);
 			path = BevyInspector;
+			sourceTree = "<group>";
+		};
+		733AFF612F4E151700EE994B /* Host */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Host;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -48,15 +88,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		733AFF5D2F4E151700EE994B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				733AFF752F4E166E00EE994B /* BevyKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		732E82EA2F4DF9F700F1FD39 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		7338DAB32EB109B00038D094 = {
 			isa = PBXGroup;
 			children = (
 				7338DBF32EB173E40038D094 /* README.md */,
 				7338DACC2EB10A3C0038D094 /* BevyRemoteProtocol */,
 				7338DABE2EB109B00038D094 /* BevyInspector */,
+				733AFF612F4E151700EE994B /* Host */,
+				732E82EA2F4DF9F700F1FD39 /* Frameworks */,
 				7338DABD2EB109B00038D094 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				7338DABC2EB109B00038D094 /* Bevy.app */,
+				733AFF602F4E151700EE994B /* Host.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,10 +137,12 @@
 				7338DAB82EB109B00038D094 /* Sources */,
 				7338DAB92EB109B00038D094 /* Frameworks */,
 				7338DABA2EB109B00038D094 /* Resources */,
+				732E82E92F4DF98100F1FD39 /* Embed XPC Services */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				733AFF682F4E151700EE994B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				7338DABE2EB109B00038D094 /* BevyInspector */,
@@ -96,6 +156,29 @@
 			productReference = 7338DABC2EB109B00038D094 /* Bevy.app */;
 			productType = "com.apple.product-type.application";
 		};
+		733AFF5F2F4E151700EE994B /* Host */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 733AFF6C2F4E151700EE994B /* Build configuration list for PBXNativeTarget "Host" */;
+			buildPhases = (
+				733AFF5C2F4E151700EE994B /* Sources */,
+				733AFF5D2F4E151700EE994B /* Frameworks */,
+				733AFF5E2F4E151700EE994B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				733AFF612F4E151700EE994B /* Host */,
+			);
+			name = Host;
+			packageProductDependencies = (
+				733AFF742F4E166E00EE994B /* BevyKit */,
+			);
+			productName = Host;
+			productReference = 733AFF602F4E151700EE994B /* Host.xpc */;
+			productType = "com.apple.product-type.xpc-service";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -103,11 +186,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2610;
-				LastUpgradeCheck = 2610;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					7338DABB2EB109B00038D094 = {
 						CreatedOnToolsVersion = 26.1;
+					};
+					733AFF5F2F4E151700EE994B = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -130,12 +216,20 @@
 			projectRoot = "";
 			targets = (
 				7338DABB2EB109B00038D094 /* Bevy */,
+				733AFF5F2F4E151700EE994B /* Host */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		7338DABA2EB109B00038D094 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		733AFF5E2F4E151700EE994B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -152,7 +246,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		733AFF5C2F4E151700EE994B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		733AFF682F4E151700EE994B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 733AFF5F2F4E151700EE994B /* Host */;
+			targetProxy = 733AFF672F4E151700EE994B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		7338DAC72EB109B20038D094 /* Debug */ = {
@@ -189,6 +298,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = ULLNL4MHTP;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -212,6 +322,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -251,6 +362,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = ULLNL4MHTP;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -267,6 +379,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -276,23 +389,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = ULLNL4MHTP;
-				ENABLE_APP_SANDBOX = YES;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
-				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
-				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
 				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
 				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
-				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
-				ENABLE_RESOURCE_ACCESS_USB = NO;
-				ENABLE_USER_SELECTED_FILES = readwrite;
+				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BevyInspector/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Bevy;
@@ -315,6 +425,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.bevy.editor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
+				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
+				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
+				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
+				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
+				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
+				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -333,23 +449,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				AUTOMATION_APPLE_EVENTS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = ULLNL4MHTP;
-				ENABLE_APP_SANDBOX = YES;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
-				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
-				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
 				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
 				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
 				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
-				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
-				ENABLE_RESOURCE_ACCESS_USB = NO;
-				ENABLE_USER_SELECTED_FILES = readwrite;
+				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BevyInspector/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Bevy;
@@ -372,6 +485,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.bevy.editor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
+				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
+				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
+				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
+				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
+				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
+				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -382,6 +501,88 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 26.1;
+			};
+			name = Release;
+		};
+		733AFF6A2F4E151700EE994B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				AUTOMATION_APPLE_EVENTS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ULLNL4MHTP;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Host/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Host;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.bevy.editor.host;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
+				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
+				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
+				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
+				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
+				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		733AFF6B2F4E151700EE994B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				AUTOMATION_APPLE_EVENTS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ULLNL4MHTP;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PHOTO_LIBRARY = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Host/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Host;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.bevy.editor.host;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
+				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
+				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
+				RUNTIME_EXCEPTION_DEBUGGING_TOOL = NO;
+				RUNTIME_EXCEPTION_DISABLE_EXECUTABLE_PAGE_PROTECTION = NO;
+				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = NO;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -402,6 +603,15 @@
 			buildConfigurations = (
 				7338DACA2EB109B20038D094 /* Debug */,
 				7338DACB2EB109B20038D094 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		733AFF6C2F4E151700EE994B /* Build configuration list for PBXNativeTarget "Host" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				733AFF6A2F4E151700EE994B /* Debug */,
+				733AFF6B2F4E151700EE994B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -430,6 +640,10 @@
 		7338DACE2EB10A470038D094 /* BevyRemoteProtocol */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BevyRemoteProtocol;
+		};
+		733AFF742F4E166E00EE994B /* BevyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BevyKit;
 		};
 		736A3D4E2EC19E1A000F9CFA /* swift-tuple */ = {
 			isa = XCSwiftPackageProductDependency;

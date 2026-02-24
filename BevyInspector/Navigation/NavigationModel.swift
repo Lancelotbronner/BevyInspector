@@ -21,7 +21,7 @@ import BevyRemoteProtocol
 }
 
 enum NavigationTab: Hashable {
-	case world, queries, schema, triggers, methods
+	case world, queries, game, schema, triggers, methods
 }
 
 enum NavigationQuery: Hashable {

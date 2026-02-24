@@ -9,9 +9,16 @@ let package = Package(
 		.macOS(.v26),
 	],
 	products: [
-		.library(name: "BevyRemoteProtocol", targets: ["BevyRemoteProtocol"]),
+		.library(name: "BevyRemoteProtocol", targets: [
+			"BevyRemoteProtocol", "BevyXPC",
+		]),
+		.library(name: "BevyKit", targets: [
+			"BevyXPC", "CoreBevy",
+		])
 	],
 	targets: [
 		.target(name: "BevyRemoteProtocol"),
+		.target(name: "BevyXPC"),
+		.target(name: "CoreBevy"),
 	]
 )

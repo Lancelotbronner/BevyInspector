@@ -14,6 +14,7 @@ struct NavigationView: View {
 		@Bindable var navigation = navigation
 		NavigationSplitView {
 			List(selection: $navigation.tab) {
+				NavigationLink("Game", value: NavigationTab.game)
 				Section("World") {
 					NavigationLink("World", value: NavigationTab.world)
 					NavigationLink("Query", value: NavigationTab.queries)
@@ -36,6 +37,7 @@ struct NavigationView: View {
 		} detail: {
 			NavigationStack(path: $navigation.path) {
 				switch navigation.tab {
+				case .game: GameDetail()
 				case .world: WorldDetail()
 				case .queries: QueriesDetail(view: navigation.query)
 				case .triggers: TriggerDetail()

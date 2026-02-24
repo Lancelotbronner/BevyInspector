@@ -8,11 +8,13 @@
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
+import BevyXPC
 
 @main struct BevyApp: App {
 	var body: some Scene {
 		DocumentGroup(editing: .project, contentType: .project) {
 			ContentView()
+				.environment(try! HostModel())
 		}
 	}
 }

@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy_ecs = "0.17.2"
-bevy_log = "0.17.2"
-bevy_reflect = "0.17.2"
-bevy_remote = "0.17.2"
-serde_json = "1.0.145"
+bevy_ecs = "0.18.0"
+bevy_log = "0.18.0"
+bevy_reflect = "0.18.0"
+bevy_remote = "0.18.0"
+serde_json = "1.0.149"
 serde = { version = "1.0.228", features = ["derive"] }
