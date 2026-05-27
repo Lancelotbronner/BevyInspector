@@ -5,6 +5,8 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
+import Json
+
 
 public struct Query: Codable, Hashable, LosslessStringConvertible, Sendable {
 	public init() {}

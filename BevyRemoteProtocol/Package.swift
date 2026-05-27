@@ -17,8 +17,10 @@ let package = Package(
 		])
 	],
 	targets: [
-		.target(name: "BevyRemoteProtocol"),
+		.target(name: "Json"),
+		.target(name: "BevyRemoteProtocol", dependencies: ["Json"]),
 		.target(name: "BevyXPC"),
 		.target(name: "CoreBevy"),
+		.target(name: "Cargo", dependencies: ["Json"]),
 	]
 )

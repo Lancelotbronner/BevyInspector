@@ -5,6 +5,8 @@
 //  Created by Christophe Bronner on 2025-10-28.
 //
 
+import Json
+
 public struct Specification: Codable {
 	public var openrpc: String
 	public var info: Info

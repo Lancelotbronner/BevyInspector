@@ -5,6 +5,8 @@
 //  Created by Christophe Bronner on 2025-11-05.
 //
 
+import Json
+
 public struct ResourcesService: Sendable {
 	public let client: OpenRPCClient
 }
