@@ -16,7 +16,7 @@ struct SchemaTab: View {
 }
 
 struct SchemaDetail: View {
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 	@Environment(SchemaUpdateModel.self) private var schema
 
 	var body: some View {
@@ -37,7 +37,7 @@ struct SchemaDetail: View {
 }
 
 struct SchemaList: View {
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 
 	@State private var search = ""
 	@State private var reflects: Set<BevyReflect> = []

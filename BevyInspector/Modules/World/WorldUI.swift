@@ -12,7 +12,7 @@ import BevyRemoteProtocol
 
 struct WorldList: View {
 	@Environment(\.modelContext) private var modelContext
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 	@Environment(\.bevy) private var bevy
 	@Query private var types: [BevyType]
 	@State private var selection: Set<WorldSelection> = []
@@ -97,7 +97,7 @@ enum WorldSelection: Hashable, Sendable {
 
 struct WorldDetail: View {
 	@Environment(\.bevy) private var bevy
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 	@State private var model: QueryRow?
 	@State private var resource: JSON?
 

@@ -15,7 +15,7 @@ import BevyRemoteProtocol
 }
 
 struct TriggerList: View {
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 	@Query(
 		filter: #Predicate<BevyType> { $0.reflect.contains { $0.identifier == "Event" } },
 		sort: \.name)
@@ -32,7 +32,7 @@ struct TriggerList: View {
 }
 
 struct TriggerDetail: View {
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 	@Environment(\.bevy) private var bevy
 	@State private var model = TriggerModel()
 

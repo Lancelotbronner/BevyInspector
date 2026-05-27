@@ -24,6 +24,7 @@ extension Array<PersistentModel.Type> {
 		BevyProperty.self,
 		BevyReflect.self,
 		BevyUse.self,
+		CrateModel.self,
 	]
 
 	static let session: Self = [

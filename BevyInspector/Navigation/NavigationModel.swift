@@ -8,7 +8,7 @@
 import SwiftUI
 import BevyRemoteProtocol
 
-@Observable final class Navigation {
+@Observable final class NavigationModel {
 	var tab = NavigationTab.world
 	var detail: NavigationDetail?
 	var schema: BevyType?
@@ -22,6 +22,7 @@ import BevyRemoteProtocol
 
 enum NavigationTab: Hashable {
 	case world, queries, game, schema, triggers, methods
+	case crate(CrateModel)
 }
 
 enum NavigationQuery: Hashable {

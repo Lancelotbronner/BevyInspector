@@ -59,6 +59,13 @@
 			);
 			target = 733AFF5F2F4E151700EE994B /* Host */;
 		};
+		734F72982F7E8D55004D4558 /* Exceptions for "Host" folder in "Host" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 733AFF5F2F4E151700EE994B /* Host */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -73,6 +80,9 @@
 		};
 		733AFF612F4E151700EE994B /* Host */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				734F72982F7E8D55004D4558 /* Exceptions for "Host" folder in "Host" target */,
+			);
 			path = Host;
 			sourceTree = "<group>";
 		};
@@ -187,7 +197,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2620;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					7338DABB2EB109B00038D094 = {
 						CreatedOnToolsVersion = 26.1;

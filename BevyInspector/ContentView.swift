@@ -10,7 +10,7 @@ import SwiftData
 import BevyRemoteProtocol
 
 struct ContentView: View {
-	@State private var navigation = Navigation()
+	@State private var navigation = NavigationModel()
 	@State private var schema = SchemaUpdateModel()
 
 	var body: some View {

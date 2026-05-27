@@ -16,7 +16,7 @@ struct MethodsTab: View {
 }
 
 struct MethodsList: View {
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 	@Environment(\.bevy) private var bevy
 	@State private var specification: Specification?
 	@State private var search = ""
@@ -52,7 +52,7 @@ struct MethodsList: View {
 }
 
 struct MethodsDetail: View {
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 
 	var body: some View {
 		if let method = navigation.method {

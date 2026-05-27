@@ -12,7 +12,7 @@ import OSLog
 
 struct QueriesList: View {
 	@Environment(\.modelContext) private var modelContext
-	@Environment(Navigation.self) private var navigation
+	@Environment(NavigationModel.self) private var navigation
 	@State private var newQuery = SavedQuery()
 	@State private var selection: Set<SavedQuery> = []
 	@Query<SavedQuery>(sort: [SortDescriptor(\._name)])
