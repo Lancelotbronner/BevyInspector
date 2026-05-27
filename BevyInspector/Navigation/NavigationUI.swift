@@ -15,21 +15,8 @@ struct NavigationView: View {
 	var body: some View {
 		@Bindable var navigation = navigation
 		NavigationSplitView {
-			List(selection: $navigation.tab) {
-				NavigationLink("Game", value: NavigationTab.game)
-				Section("World") {
-					NavigationLink("World", value: NavigationTab.world)
-					NavigationLink("Query", value: NavigationTab.queries)
-					NavigationLink("Triggers", value: NavigationTab.triggers)
-				}
-				Section("Registry") {
-					NavigationLink("Schema", value: NavigationTab.schema)
-					NavigationLink("Methods", value: NavigationTab.methods)
-				}
-			}
-			HStack {
-				AddToWorkspace()
-			}
+			Sidebar(navigation: navigation)
+				.frame(minWidth: 180)
 		} content: {
 			switch navigation.tab {
 			case .world: WorldList()
@@ -67,38 +54,5 @@ struct NavigationView: View {
 		}
 		.tabViewStyle(.sidebarAdaptable)
 #endif
-	}
-}
-
-private struct AddToWorkspace: View {
-	@Environment(\.modelContext) private var modelContext
-	@State private var isPresented = false
-
-	var body: some View {
-		Menu("Add to Workspace") {
-			Button("New Crate") {
-				isPresented = true
-			}
-		}
-		.fileImporter(isPresented: $isPresented, allowedContentTypes: [.folder]) { result in
-			if let url = try? result.get() {
-				let model = CrateModel()
-				model.path = url.absoluteString
-				modelContext.insert(model)
-			}
-		}
-	}
-}
-
-private struct CratesSection: View {
-	@Query private var crates: [CrateModel]
-
-	var body: some View {
-		Section("Crates") {
-			ForEach(crates) { crate in
-				CrateSidebar(model: crate)
-					.tag(NavigationTab.crate(crate))
-			}
-		}
 	}
 }

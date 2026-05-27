@@ -10,6 +10,7 @@ import BevyRemoteProtocol
 
 @Observable final class NavigationModel {
 	var tab = NavigationTab.world
+	var sidebar = SidebarTab.inspector
 	var detail: NavigationDetail?
 	var schema: BevyType?
 	var query = SavedQuery()
